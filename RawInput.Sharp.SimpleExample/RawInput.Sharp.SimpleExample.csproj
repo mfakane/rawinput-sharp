@@ -41,7 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawInputEventArgs.cs" />
     <Compile Include="RawInputReceiverWindow.cs" />
   </ItemGroup>
@@ -53,6 +52,9 @@
       <Project>{47C40BEA-5191-46A3-BE27-4B7A1B725C31}</Project>
       <Name>RawInput.Sharp</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
