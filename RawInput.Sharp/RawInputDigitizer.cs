@@ -10,7 +10,7 @@ namespace Linearstar.RawInput
 
         public int MaxContactCount => Reader.ValueSets.SelectMany(x => x).FirstOrDefault(x => x.LinkUsageAndPage == UsageAndPage && x.UsageAndPage == UsageContactCount)?.MaxValue ?? 1;
 
-        public RawInputDigitizer(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
+        internal RawInputDigitizer(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
             : base(device, deviceInfo)
         {
             if (!IsSupported(deviceInfo.Hid.UsageAndPage)) throw new ArgumentException($"UsagePage and Usage {deviceInfo.Hid.UsageAndPage} is not supported as a digitizer.", nameof(deviceInfo));

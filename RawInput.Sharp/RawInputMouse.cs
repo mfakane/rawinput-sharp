@@ -23,7 +23,7 @@ namespace Linearstar.RawInput
         public int SampleRate => DeviceInfo.Mouse.SampleRate;
         public bool HasHorizontalWheel => DeviceInfo.Mouse.HasHorizontalWheel;
 
-        public RawInputMouse(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
+        internal RawInputMouse(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
             : base(device, deviceInfo)
         {
             if (deviceInfo.Type != RawInputDeviceType.Mouse) throw new ArgumentException($"Device type must be {RawInputDeviceType.Mouse}.", nameof(deviceInfo));

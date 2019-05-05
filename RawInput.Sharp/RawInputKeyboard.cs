@@ -25,7 +25,7 @@ namespace Linearstar.RawInput
         public int IndicatorCount => DeviceInfo.Keyboard.IndicatorCount;
         public int TotalKeyCount => DeviceInfo.Keyboard.TotalKeyCount;
 
-        public RawInputKeyboard(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
+        internal RawInputKeyboard(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
             : base(device, deviceInfo)
         {
             if (deviceInfo.Type != RawInputDeviceType.Keyboard) throw new ArgumentException($"Device type must be {RawInputDeviceType.Keyboard}", nameof(deviceInfo));

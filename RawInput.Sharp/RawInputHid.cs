@@ -17,7 +17,7 @@ namespace Linearstar.RawInput
 
         public HidReader Reader => hidReader.Value;
 
-        public RawInputHid(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
+        internal RawInputHid(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
             : base(device, deviceInfo)
         {
             if (deviceInfo.Type != RawInputDeviceType.Hid) throw new ArgumentException($"Device type must be {RawInputDeviceType.Hid}.", nameof(deviceInfo));
