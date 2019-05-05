@@ -5,7 +5,7 @@ using Linearstar.RawInput.Native;
 namespace Linearstar.RawInput
 {
     public class RawInputKeyboard : RawInputDevice
-	{
+    {
         public override HidUsageAndPage UsageAndPage => HidUsageAndPage.Keyboard;
 
         public override int VendorId =>
@@ -19,16 +19,16 @@ namespace Linearstar.RawInput
                 : 0;
 
         public int KeyboardType => DeviceInfo.Keyboard.KeyboardType;
-		public int KeyboardSubType => DeviceInfo.Keyboard.KeyboardSubType;
-		public int KeyboardMode => DeviceInfo.Keyboard.KeyboardMode;
-		public int FunctionKeyCount => DeviceInfo.Keyboard.FunctionKeyCount;
-		public int IndicatorCount => DeviceInfo.Keyboard.IndicatorCount;
-		public int TotalKeyCount => DeviceInfo.Keyboard.TotalKeyCount;
+        public int KeyboardSubType => DeviceInfo.Keyboard.KeyboardSubType;
+        public int KeyboardMode => DeviceInfo.Keyboard.KeyboardMode;
+        public int FunctionKeyCount => DeviceInfo.Keyboard.FunctionKeyCount;
+        public int IndicatorCount => DeviceInfo.Keyboard.IndicatorCount;
+        public int TotalKeyCount => DeviceInfo.Keyboard.TotalKeyCount;
 
-		public RawInputKeyboard(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
-			: base(device, deviceInfo)
-		{
+        public RawInputKeyboard(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
+            : base(device, deviceInfo)
+        {
             if (deviceInfo.Type != RawInputDeviceType.Keyboard) throw new ArgumentException($"Device type must be {RawInputDeviceType.Keyboard}", nameof(deviceInfo));
-		}
-	}
+        }
+    }
 }

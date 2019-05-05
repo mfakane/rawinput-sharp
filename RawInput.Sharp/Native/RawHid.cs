@@ -6,14 +6,14 @@ namespace Linearstar.RawInput.Native
     /// <summary>
     /// RAWHID
     /// </summary>
-	public struct RawHid
-	{
+    public struct RawHid
+    {
         int dwSizeHid;
         int dwCount;
         byte[] rawData;
 
-		public int ElementSize => dwSizeHid;
-		public int Count => dwCount;
+        public int ElementSize => dwSizeHid;
+        public int Count => dwCount;
         public unsafe byte[] RawData => rawData;
 
         public static unsafe RawHid FromPointer(void* ptr)
@@ -59,7 +59,7 @@ namespace Linearstar.RawInput.Native
             return result;
         }
 
-		public override string ToString() =>
-			$"{{Count: {Count}, Size: {ElementSize}, Content: {BitConverter.ToString(RawData).Replace("-", " ")}}}";
-	}
+        public override string ToString() =>
+            $"{{Count: {Count}, Size: {ElementSize}, Content: {BitConverter.ToString(RawData).Replace("-", " ")}}}";
+    }
 }

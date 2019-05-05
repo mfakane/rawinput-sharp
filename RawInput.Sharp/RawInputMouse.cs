@@ -5,7 +5,7 @@ using Linearstar.RawInput.Native;
 namespace Linearstar.RawInput
 {
     public class RawInputMouse : RawInputDevice
-	{
+    {
         public override HidUsageAndPage UsageAndPage => HidUsageAndPage.Mouse;
 
         public override int VendorId =>
@@ -19,13 +19,13 @@ namespace Linearstar.RawInput
                 : 0;
 
         public int Id => DeviceInfo.Mouse.Id;
-		public int ButtonCount => DeviceInfo.Mouse.ButtonCount;
-		public int SampleRate => DeviceInfo.Mouse.SampleRate;
-		public bool HasHorizontalWheel => DeviceInfo.Mouse.HasHorizontalWheel;
+        public int ButtonCount => DeviceInfo.Mouse.ButtonCount;
+        public int SampleRate => DeviceInfo.Mouse.SampleRate;
+        public bool HasHorizontalWheel => DeviceInfo.Mouse.HasHorizontalWheel;
 
-		public RawInputMouse(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
-			: base(device, deviceInfo)
-		{
+        public RawInputMouse(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
+            : base(device, deviceInfo)
+        {
             if (deviceInfo.Type != RawInputDeviceType.Mouse) throw new ArgumentException($"Device type must be {RawInputDeviceType.Mouse}.", nameof(deviceInfo));
         }
     }

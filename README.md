@@ -27,30 +27,30 @@ protected override void WndProc(ref Message m)
 {
     const int WM_INPUT = 0x00FF;
 
-	// You can read inputs by processing the WM_INPUT message.
+    // You can read inputs by processing the WM_INPUT message.
     if (m.Msg == WM_INPUT)
     {
-		// Create an RawInputData from the handle stored in lParam.
+        // Create an RawInputData from the handle stored in lParam.
         var data = RawInputData.FromHandle(m.LParam);
 
-		// You can identify the source device using Header.DeviceHandle or just Device.
-		var sourceDeviceHandle = data.Header.DeviceHandle;
-		var sourceDevice = data.Device;
+        // You can identify the source device using Header.DeviceHandle or just Device.
+        var sourceDeviceHandle = data.Header.DeviceHandle;
+        var sourceDevice = data.Device;
 
-		// The data will be an instance of either RawInputMouseData, RawInputKeyboardData, or RawInputHidData.
-		// They contain the raw input data in their properties.
+        // The data will be an instance of either RawInputMouseData, RawInputKeyboardData, or RawInputHidData.
+        // They contain the raw input data in their properties.
         switch (data)
-		{
-			case RawInputMouseData mouse:
-				Console.WriteLine(mouse.Mouse);
-				break;
-			case RawInputKeyboardData keyboard:
-				Console.WriteLine(keyboard.Keyboard);
-				break;
-			case RawInputHidData hid:
-				Console.WriteLine(hid.Hid);
-				break;
-		}
+        {
+            case RawInputMouseData mouse:
+                Console.WriteLine(mouse.Mouse);
+                break;
+            case RawInputKeyboardData keyboard:
+                Console.WriteLine(keyboard.Keyboard);
+                break;
+            case RawInputHidData hid:
+                Console.WriteLine(hid.Hid);
+                break;
+        }
     }
 
     base.WndProc(ref m);

@@ -1,9 +1,9 @@
 ﻿namespace Linearstar.RawInput
 {
-	public enum RawInputDeviceType
-	{
-		Mouse,
-		Keyboard,
-		Hid,
-	}
+    public enum RawInputDeviceType
+    {
+        Mouse,
+        Keyboard,
+        Hid,
+    }
 }

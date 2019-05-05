@@ -4,7 +4,7 @@ using Linearstar.RawInput.Native;
 namespace Linearstar.RawInput
 {
     public class RawInputHid : RawInputDevice
-	{
+    {
         readonly Lazy<HidReader> hidReader;
 
         public override HidUsageAndPage UsageAndPage => DeviceInfo.Hid.UsageAndPage;
@@ -18,11 +18,11 @@ namespace Linearstar.RawInput
         public HidReader Reader => hidReader.Value;
 
         public RawInputHid(RawInputDeviceHandle device, RawInputDeviceInfo deviceInfo)
-			: base(device, deviceInfo)
-		{
+            : base(device, deviceInfo)
+        {
             if (deviceInfo.Type != RawInputDeviceType.Hid) throw new ArgumentException($"Device type must be {RawInputDeviceType.Hid}.", nameof(deviceInfo));
 
             hidReader = new Lazy<HidReader>(() => new HidReader(GetPreparsedData()));
         }
-	}
+    }
 }

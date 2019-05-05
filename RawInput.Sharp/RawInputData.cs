@@ -6,26 +6,26 @@ using Linearstar.RawInput.Native;
 namespace Linearstar.RawInput
 {
     public abstract class RawInputData
-	{
+    {
         RawInputDevice device;
 
         public RawInputHeader Header { get; }
 
-		public RawInputDevice Device =>
+        public RawInputDevice Device =>
             device ??= Header.DeviceHandle != RawInputDeviceHandle.Zero
                 ? RawInputDevice.FromHandle(Header.DeviceHandle)
                 : null;
 
-		protected RawInputData(RawInputHeader header)
-		{
-			Header = header;
-		}
+        protected RawInputData(RawInputHeader header)
+        {
+            Header = header;
+        }
 
         public static RawInputData FromHandle(IntPtr lParam)
             => FromHandle((RawInputHandle)lParam);
 
         public static RawInputData FromHandle(RawInputHandle rawInput)
-		{
+        {
             var header = User32.GetRawInputDataHeader(rawInput);
 
             switch (header.Type)
@@ -63,9 +63,9 @@ namespace Linearstar.RawInput
         }
 
         public static unsafe RawInputData[] GetBufferedData(int bufferSize = 8)
-		{
+        {
             var itemSize = User32.GetRawInputBufferSize();
-			if (itemSize == 0) return new RawInputData[0];
+            if (itemSize == 0) return new RawInputData[0];
 
             var bytes = new byte[itemSize * bufferSize];
 
@@ -86,13 +86,13 @@ namespace Linearstar.RawInput
 
                 return result;
             }
-		}
+        }
 
         protected static int Align(int x) => (x + IntPtr.Size - 1) & ~(IntPtr.Size - 1);
 
         public static void DefRawInputProc(RawInputData[] data) =>
-			User32.DefRawInputProc(data.SelectMany(i => i.ToStructure()).ToArray());
+            User32.DefRawInputProc(data.SelectMany(i => i.ToStructure()).ToArray());
 
         public abstract byte[] ToStructure();
-	}
+    }
 }
