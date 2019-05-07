@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Linearstar.RawInput.Native
+namespace Linearstar.Windows.RawInput.Native
 {
     /// <summary>
     /// RID_DEVICE_INFO_MOUSE

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Linearstar.RawInput.Native
+namespace Linearstar.Windows.RawInput.Native
 {
     public struct HidDeviceHandle : IEquatable<HidDeviceHandle>
     {

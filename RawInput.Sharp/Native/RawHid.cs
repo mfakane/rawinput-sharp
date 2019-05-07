@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace Linearstar.RawInput.Native
+namespace Linearstar.Windows.RawInput.Native
 {
     /// <summary>
     /// RAWHID

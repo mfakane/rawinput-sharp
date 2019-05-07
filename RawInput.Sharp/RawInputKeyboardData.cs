@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
-using Linearstar.RawInput.Native;
+using Linearstar.Windows.RawInput.Native;
 
-namespace Linearstar.RawInput
+namespace Linearstar.Windows.RawInput
 {
     public class RawInputKeyboardData : RawInputData
     {

@@ -1,5 +1,5 @@
 ﻿using System;
-using Linearstar.RawInput;
+using Linearstar.Windows.RawInput;
 
 namespace RawInput.Sharp.SimpleExample
 {

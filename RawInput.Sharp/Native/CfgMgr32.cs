@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace Linearstar.RawInput.Native
+namespace Linearstar.Windows.RawInput.Native
 {
     public static class CfgMgr32
     {

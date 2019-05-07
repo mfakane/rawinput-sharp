@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
-using Linearstar.RawInput;
+using Linearstar.Windows.RawInput;
 
 namespace RawInput.Sharp.SimpleExample
 {

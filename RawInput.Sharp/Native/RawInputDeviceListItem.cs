@@ -1,4 +1,4 @@
-﻿namespace Linearstar.RawInput.Native
+﻿namespace Linearstar.Windows.RawInput.Native
 {
     /// <summary>
     /// RAWINPUTDEVICELIST

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Linearstar.RawInput
+namespace Linearstar.Windows.RawInput
 {
     public class HidValueSetState : IEnumerable<HidValueState>
     {

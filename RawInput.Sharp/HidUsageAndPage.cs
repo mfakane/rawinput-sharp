@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Linearstar.RawInput
+namespace Linearstar.Windows.RawInput
 {
     public struct HidUsageAndPage : IEquatable<HidUsageAndPage>
     {

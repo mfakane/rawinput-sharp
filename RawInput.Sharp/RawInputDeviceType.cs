@@ -1,4 +1,4 @@
-﻿namespace Linearstar.RawInput
+﻿namespace Linearstar.Windows.RawInput
 {
     public enum RawInputDeviceType
     {

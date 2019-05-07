@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Windows.Forms;
-using Linearstar.RawInput;
+using Linearstar.Windows.RawInput;
 
 namespace RawInput.Sharp.SimpleExample
 {

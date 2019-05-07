@@ -8,7 +8,7 @@ Available on .NET Standard 2.0, but works only on Windows.
 ### Acquiring connected devices
 
 ```cs
-// using Linearstar.RawInput;
+// using Linearstar.Windows.RawInput;
 
 // Get the devices that can be handled with Raw Input.
 var devices = RawInputDevice.GetDevices();
