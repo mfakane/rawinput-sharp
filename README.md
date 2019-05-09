@@ -3,6 +3,10 @@
 A simple wrapper library for Raw Input.
 Available on .NET Standard 2.0, but works only on Windows.
 
+## NuGet
+
+https://www.nuget.org/packages/RawInput.Sharp/
+
 ## Usage
 
 ### Acquiring connected devices
