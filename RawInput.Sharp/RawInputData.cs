@@ -44,7 +44,7 @@ namespace Linearstar.Windows.RawInput
         static unsafe RawInputData ParseRawInputBufferItem(byte* ptr)
         {
             var header = *(RawInputHeader*)ptr;
-            var headerSize = Marshal.SizeOf<RawInputHeader>();
+            var headerSize = MarshalExtensions.SizeOf<RawInputHeader>();
             var dataPtr = ptr + headerSize;
 
             if (IntPtr.Size == 4 && Environment.Is64BitOperatingSystem) dataPtr += 8;
@@ -94,5 +94,18 @@ namespace Linearstar.Windows.RawInput
             User32.DefRawInputProc(data.SelectMany(i => i.ToStructure()).ToArray());
 
         public abstract byte[] ToStructure();
+    }
+
+    internal static class MarshalExtensions
+    {
+        public static int SizeOf<T>()
+        {
+#if NET45
+            return Marshal.SizeOf(typeof(T));
+#else
+            // support in .NET Framework 4.5.1
+            return Marshal.SizeOf<T>();
+#endif
+        }
     }
 }

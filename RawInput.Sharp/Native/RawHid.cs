@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+#if NET45
+using System.Runtime.CompilerServices;
+#endif
 
 namespace Linearstar.Windows.RawInput.Native
 {
@@ -26,7 +29,14 @@ namespace Linearstar.Windows.RawInput.Native
             result.rawData = new byte[result.ElementSize * result.Count];
 
             fixed (byte* rawDataPtr = result.rawData)
-                Buffer.MemoryCopy(&intPtr[2], rawDataPtr, result.rawData.Length, result.rawData.Length);
+            {
+#if NET45
+                Unsafe.CopyBlock(&intPtr[2], rawDataPtr, (uint)result.rawData.Length);
+#else
+                 Buffer.MemoryCopy(&intPtr[2], rawDataPtr, result.rawData.Length, result.rawData.Length);
+#endif
+
+            }
 
             return result;
         }
@@ -53,7 +63,14 @@ namespace Linearstar.Windows.RawInput.Native
                 intPtr[1] = dwCount;
 
                 fixed (byte* rawDataPtr = rawData)
+                {
+#if NET45
+                    Unsafe.CopyBlock(rawDataPtr, &intPtr[2], (uint)rawData.Length);
+#else
                     Buffer.MemoryCopy(rawDataPtr, &intPtr[2], rawData.Length, rawData.Length);
+#endif
+
+                }
             }
 
             return result;

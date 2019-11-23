@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>net45;netstandard2.0</TargetFrameworks>
     <LangVersion>preview</LangVersion>
     <RootNamespace>Linearstar.Windows.RawInput</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -11,11 +11,16 @@
     <Copyright>Copyright (c) 2019 mfakane</Copyright>
     <Authors>mfakane</Authors>
     <PackageLicenseExpression>Zlib</PackageLicenseExpression>
-    <Version>0.0.2</Version>
+    <Version>0.0.3</Version>
     <AssemblyVersion>0.0.0.0</AssemblyVersion>
     <FileVersion>0.0.0.0</FileVersion>
     <PackageTags>Windows RawInput</PackageTags>
     <RepositoryUrl>https://github.com/mfakane/rawinput-sharp</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup Condition="$(TargetFramework)=='net45'">
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="4.6.0" />
+  </ItemGroup>
 
 </Project>

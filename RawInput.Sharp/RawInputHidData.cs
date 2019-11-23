@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+#if NET45
+using System.Runtime.CompilerServices;
+#endif
 using System.Runtime.InteropServices;
 using Linearstar.Windows.RawInput.Native;
 
@@ -33,7 +36,7 @@ namespace Linearstar.Windows.RawInput
 
         public override unsafe byte[] ToStructure()
         {
-            var headerSize = Marshal.SizeOf<RawInputHeader>();
+            var headerSize = MarshalExtensions.SizeOf<RawInputHeader>();
             var hid = Hid.ToStructure();
             var bytes = new byte[Align(headerSize + hid.Length)];
 
@@ -42,7 +45,14 @@ namespace Linearstar.Windows.RawInput
                 *(RawInputHeader*)bytesPtr = Header;
 
                 fixed (byte* hidPtr = hid)
-                    Buffer.MemoryCopy(hidPtr, bytesPtr + headerSize, hid.Length, hid.Length);
+                {
+#if NET45
+                    Unsafe.CopyBlock(hidPtr, bytesPtr + headerSize, (uint)hid.Length);
+#else
+                    Buffer.MemoryCopy(hidPtr, bytesPtr + headerSize, (uint)hid.Length, (uint)hid.Length);
+#endif
+                }
+                
             }
 
             return bytes;
