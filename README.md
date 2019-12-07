@@ -1,7 +1,7 @@
 ﻿# RawInput.Sharp
 
 A simple wrapper library for Raw Input.
-Available on .NET Standard 2.0, but works only on Windows.
+Available on .NET Standard 1.1, but works only on Windows.
 
 ## NuGet
 
