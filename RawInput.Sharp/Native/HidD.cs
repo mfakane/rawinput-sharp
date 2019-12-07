@@ -1,74 +1,41 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
 
 namespace Linearstar.Windows.RawInput.Native
 {
     public static class HidD
     {
-        [SuppressUnmanagedCodeSecurity, DllImport("kernel32", SetLastError = true, CharSet = CharSet.Unicode)]
-        static extern IntPtr CreateFile(string lpFileName, DesiredAccess dwDesiredAccess, ShareMode dwShareMode, IntPtr lpSecurityAttributes, CreateDisposition dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
-
-        [SuppressUnmanagedCodeSecurity, DllImport("kernel32", SetLastError = true)]
-        static extern bool CloseHandle(IntPtr hObject);
-
-        [Flags]
-        enum DesiredAccess : uint
-        {
-            None,
-            Write = 0x40000000,
-            Read = 0x80000000
-        }
-
-        [Flags]
-        enum ShareMode : uint
-        {
-            None,
-            Read = 0x00000001,
-            Write = 0x00000002,
-            Delete = 0x00000004
-        }
-
-        enum CreateDisposition : uint
-        {
-            CreateNew = 1,
-            CreateAlways,
-            OpenExisting,
-            OpenAlways,
-            TruncateExisting
-        }
-
-        [SuppressUnmanagedCodeSecurity, DllImport("hid", CharSet = CharSet.Unicode)]
+        [DllImport("hid", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool HidD_GetManufacturerString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid", CharSet = CharSet.Unicode)]
+        [DllImport("hid", CharSet = CharSet.Unicode)]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool HidD_GetProductString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool HidD_GetPreparsedData(IntPtr HidDeviceObject, out IntPtr PreparsedData);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         [return: MarshalAs(UnmanagedType.U1)]
         static extern bool HidD_FreePreparsedData(IntPtr PreparsedData);
 
         public static HidDeviceHandle OpenDevice(string devicePath)
         {
-            var deviceHandle = CreateFile(devicePath, DesiredAccess.None, ShareMode.Read | ShareMode.Write, IntPtr.Zero, CreateDisposition.OpenExisting, 0, IntPtr.Zero);
-            if (deviceHandle == new IntPtr(-1)) throw new Win32Exception();
+            var deviceHandle = Kernel32.CreateFile(devicePath, Kernel32.ShareMode.Read | Kernel32.ShareMode.Write, Kernel32.CreateDisposition.OpenExisting);
 
             return (HidDeviceHandle)deviceHandle;
         }
 
         public static bool TryOpenDevice(string devicePath, out HidDeviceHandle device)
         {
-            var deviceHandle = CreateFile(devicePath, DesiredAccess.None, ShareMode.Read | ShareMode.Write, IntPtr.Zero, CreateDisposition.OpenExisting, 0, IntPtr.Zero);
-
-            if (deviceHandle == new IntPtr(-1))
+            if (!Kernel32.TryCreateFile(
+                devicePath,
+                Kernel32.ShareMode.Read | Kernel32.ShareMode.Write,
+                Kernel32.CreateDisposition.OpenExisting,
+                out var deviceHandle))
             {
                 device = HidDeviceHandle.Zero;
                 return false;
@@ -82,7 +49,7 @@ namespace Linearstar.Windows.RawInput.Native
         {
             var deviceHandle = HidDeviceHandle.GetRawValue(device);
 
-            CloseHandle(deviceHandle);
+            Kernel32.CloseHandle(deviceHandle);
         }
 
         public static string GetManufacturerString(HidDeviceHandle device)
@@ -122,7 +89,7 @@ namespace Linearstar.Windows.RawInput.Native
             if (!proc(handle, buf, (uint)buf.Length))
                 return null;
 
-            var str = Encoding.Unicode.GetString(buf);
+            var str = Encoding.Unicode.GetString(buf, 0, buf.Length);
 
             return str.Contains("\0") ? str.Substring(0, str.IndexOf('\0')) : str;
         }

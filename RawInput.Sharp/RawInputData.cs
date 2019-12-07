@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Linearstar.Windows.RawInput.Native;
 
 namespace Linearstar.Windows.RawInput
@@ -44,10 +43,12 @@ namespace Linearstar.Windows.RawInput
         static unsafe RawInputData ParseRawInputBufferItem(byte* ptr)
         {
             var header = *(RawInputHeader*)ptr;
-            var headerSize = Marshal.SizeOf<RawInputHeader>();
+            var headerSize = MarshalEx.SizeOf<RawInputHeader>();
             var dataPtr = ptr + headerSize;
 
-            if (IntPtr.Size == 4 && Environment.Is64BitOperatingSystem) dataPtr += 8;
+            // RAWINPUT structure must be aligned by 8 bytes on WOW64
+            // https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getrawinputbuffer#remarks
+            if (EnvironmentEx.Is64BitProcess && EnvironmentEx.Is64BitOperatingSystem) dataPtr += 8;
 
             switch (header.Type)
             {

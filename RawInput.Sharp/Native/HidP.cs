@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Security;
 
 namespace Linearstar.Windows.RawInput.Native
 {
     public static class HidP
     {
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetCaps(IntPtr preparsedData, out HidPCaps capabilities);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetButtonCaps(HidPReportType reportType, [Out] HidPButtonCaps[] buttonCaps, ref ushort buttonCapsLength, IntPtr preparsedData);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetValueCaps(HidPReportType reportType, [Out] HidPValueCaps[] valueCaps, ref ushort valueCapsLength, IntPtr preparsedData);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetUsages(HidPReportType reportType, ushort usagePage, ushort linkCollection, [Out] ushort[] usageList, ref uint usageLength, IntPtr preparsedData, byte[] report, uint reportLength);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetUsageValue(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, out int usageValue, IntPtr preparsedData, byte[] report, uint reportLength);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetScaledUsageValue(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, out int usageValue, IntPtr preparsedData, byte[] report, uint reportLength);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("hid")]
+        [DllImport("hid")]
         static extern NtStatus HidP_GetUsageValueArray(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, [Out] byte[] usageValue, ushort usageValueByteLength, IntPtr preparsedData, byte[] report, uint reportLength);
 
 

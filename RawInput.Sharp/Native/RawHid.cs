@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Linearstar.Windows.RawInput.Native
 {
@@ -24,9 +25,7 @@ namespace Linearstar.Windows.RawInput.Native
             result.dwSizeHid = intPtr[0];
             result.dwCount = intPtr[1];
             result.rawData = new byte[result.ElementSize * result.Count];
-
-            fixed (byte* rawDataPtr = result.rawData)
-                Buffer.MemoryCopy(&intPtr[2], rawDataPtr, result.rawData.Length, result.rawData.Length);
+            Marshal.Copy(new IntPtr(&intPtr[2]), result.rawData, 0, result.rawData.Length);
 
             return result;
         }
@@ -34,10 +33,10 @@ namespace Linearstar.Windows.RawInput.Native
         public ArraySegment<byte>[] ToHidReports()
         {
             var elementSize = ElementSize;
-            var rawData = RawData;
+            var rawDataArray = RawData;
 
             return Enumerable.Range(0, Count)
-                             .Select(x => new ArraySegment<byte>(rawData, elementSize * x, elementSize))
+                             .Select(x => new ArraySegment<byte>(rawDataArray, elementSize * x, elementSize))
                              .ToArray();
         }
         
@@ -51,10 +50,9 @@ namespace Linearstar.Windows.RawInput.Native
 
                 intPtr[0] = dwSizeHid;
                 intPtr[1] = dwCount;
-
-                fixed (byte* rawDataPtr = rawData)
-                    Buffer.MemoryCopy(rawDataPtr, &intPtr[2], rawData.Length, rawData.Length);
             }
+
+            rawData.CopyTo(result, sizeof(int) * 2);
 
             return result;
         }

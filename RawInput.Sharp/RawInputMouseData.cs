@@ -13,8 +13,8 @@ namespace Linearstar.Windows.RawInput
 
         public override unsafe byte[] ToStructure()
         {
-            var headerSize = Marshal.SizeOf<RawInputHeader>();
-            var mouseSize = Marshal.SizeOf<RawMouse>();
+            var headerSize = MarshalEx.SizeOf<RawInputHeader>();
+            var mouseSize = MarshalEx.SizeOf<RawMouse>();
             var bytes = new byte[headerSize + mouseSize];
 
             fixed (byte* bytesPtr = bytes)

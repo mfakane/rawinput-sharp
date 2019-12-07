@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Security;
 
 namespace Linearstar.Windows.RawInput.Native
 {
     public static class CfgMgr32
     {
-        [SuppressUnmanagedCodeSecurity, DllImport("cfgmgr32", CharSet = CharSet.Unicode)]
+        [DllImport("cfgmgr32", CharSet = CharSet.Unicode)]
         static extern ConfigReturnValue CM_Locate_DevNode(out IntPtr pdnDevInst, string pDeviceID, LocateDevNodeFlags ulFlags);
 
-        [SuppressUnmanagedCodeSecurity, DllImport("cfgmgr32", CharSet = CharSet.Unicode)]
+        [DllImport("cfgmgr32", CharSet = CharSet.Unicode)]
         static extern ConfigReturnValue CM_Get_DevNode_Property(IntPtr dnDevInst, in DevicePropertyKey propertyKey, out uint propertyType, IntPtr propertyBuffer, ref uint propertyBufferSize, uint ulFlags);
 
         /// <summary>

@@ -27,7 +27,7 @@ namespace Linearstar.Windows.RawInput.Native
 
         public DevicePropertyKey(uint l, ushort w1, ushort w2, byte b1, byte b2, byte b3, byte b4, byte b5, byte b6, byte b7, byte b8, int pid)
         {
-            fmtid = new Guid(l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8);
+            fmtid = new Guid((int) l, (short) w1, (short) w2, b1, b2, b3, b4, b5, b6, b7, b8);
             this.pid = pid;
         }
     }
