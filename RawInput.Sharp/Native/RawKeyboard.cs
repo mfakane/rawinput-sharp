@@ -29,9 +29,9 @@ namespace Linearstar.Windows.RawInput.Native
     [Flags]
     public enum RawKeyboardFlags : ushort
     {
-        Down,
-        Up,
-        LeftKey,
-        RightKey = 4,
+        None = 0,
+        Up = 1,
+        KeyE0 = 2,
+        KeyE1 = 4,
     }
 }
