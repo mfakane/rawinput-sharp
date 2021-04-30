@@ -34,10 +34,9 @@ namespace Linearstar.Windows.RawInput.Native
     public enum RawMouseFlags : ushort
     {
         None = 0,
-        MoveRelative = 1,
-        MoveAbsolute = 2,
-        VirtualDesktop = 4,
-        AttributesChanged = 8,
+        MoveAbsolute = 1,
+        VirtualDesktop = 2,
+        AttributesChanged = 4,
     }
 
     [Flags]
