@@ -26,12 +26,27 @@ namespace Linearstar.Windows.RawInput.Native
             $"{{Key: {VirutalKey}, ScanCode: {ScanCode}, Flags: {Flags}}}";
     }
 
+    /// <summary>
+    /// RI_KEY_*
+    /// </summary>
     [Flags]
     public enum RawKeyboardFlags : ushort
     {
+        /// <summary>
+        /// RI_KEY_MAKE
+        /// </summary>
         None = 0,
+        /// <summary>
+        /// RI_KEY_BREAK
+        /// </summary>
         Up = 1,
+        /// <summary>
+        /// RI_KEY_E0
+        /// </summary>
         KeyE0 = 2,
+        /// <summary>
+        /// RI_KEY_E1
+        /// </summary>
         KeyE1 = 4,
     }
 }
