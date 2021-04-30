@@ -31,7 +31,7 @@ namespace Linearstar.Windows.RawInput.Native
     {
         None = 0,
         Up = 1,
-        LeftKey = 2,
-        RightKey = 4,
+        KeyE0 = 2,
+        KeyE1 = 4,
     }
 }
