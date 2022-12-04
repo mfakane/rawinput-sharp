@@ -2,36 +2,35 @@
 using System.Windows.Forms;
 using Linearstar.Windows.RawInput;
 
-namespace RawInput.Sharp.SimpleExample
+namespace RawInput.Sharp.SimpleExample;
+
+sealed class RawInputReceiverWindow : NativeWindow
 {
-    class RawInputReceiverWindow : NativeWindow
+    public event EventHandler<RawInputEventArgs>? Input;
+
+    public RawInputReceiverWindow()
     {
-        public event EventHandler<RawInputEventArgs> Input;
-
-        public RawInputReceiverWindow()
+        CreateHandle(new CreateParams
         {
-            CreateHandle(new CreateParams
-            {
-                X = 0,
-                Y = 0,
-                Width = 0,
-                Height = 0,
-                Style = 0x800000,
-            });
+            X = 0,
+            Y = 0,
+            Width = 0,
+            Height = 0,
+            Style = 0x800000,
+        });
+    }
+
+    protected override void WndProc(ref Message m)
+    {
+        const int WM_INPUT = 0x00FF;
+
+        if (m.Msg == WM_INPUT)
+        {
+            var data = RawInputData.FromHandle(m.LParam);
+
+            Input?.Invoke(this, new RawInputEventArgs(data));
         }
 
-        protected override void WndProc(ref Message m)
-        {
-            const int WM_INPUT = 0x00FF;
-
-            if (m.Msg == WM_INPUT)
-            {
-                var data = RawInputData.FromHandle(m.LParam);
-
-                Input?.Invoke(this, new RawInputEventArgs(data));
-            }
-
-            base.WndProc(ref m);
-        }
+        base.WndProc(ref m);
     }
 }

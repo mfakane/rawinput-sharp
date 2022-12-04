@@ -1,9 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Linearstar.Windows.RawInput
+namespace Linearstar.Windows.RawInput;
+
+static class MarshalEx
 {
-    static class MarshalEx
-    {
-        public static int SizeOf<T>() => Marshal.SizeOf(typeof(T));
-    }
+    public static int SizeOf<T>() => Marshal.SizeOf(typeof(T));
 }

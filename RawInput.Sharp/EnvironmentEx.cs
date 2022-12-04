@@ -1,21 +1,20 @@
 ﻿using System;
 using Linearstar.Windows.RawInput.Native;
 
-namespace Linearstar.Windows.RawInput
+namespace Linearstar.Windows.RawInput;
+
+static class EnvironmentEx
 {
-    static class EnvironmentEx
+    public static bool Is64BitOperatingSystem
     {
-        public static bool Is64BitOperatingSystem
+        get
         {
-            get
-            {
-                var isWow64ProcessProc = Kernel32.GetProcAddress(Kernel32.GetModuleHandle("kernel32"), "IsWow64Process");
+            var isWow64ProcessProc = Kernel32.GetProcAddress(Kernel32.GetModuleHandle("kernel32"), "IsWow64Process");
 
-                return isWow64ProcessProc != IntPtr.Zero
-                    && Kernel32.IsWow64Process(Kernel32.GetCurrentProcess());
-            }
+            return isWow64ProcessProc != IntPtr.Zero
+                   && Kernel32.IsWow64Process(Kernel32.GetCurrentProcess());
         }
-
-        public static bool Is64BitProcess => IntPtr.Size == 8;
     }
+
+    public static bool Is64BitProcess => IntPtr.Size == 8;
 }

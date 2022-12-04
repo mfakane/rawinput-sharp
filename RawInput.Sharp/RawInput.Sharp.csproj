@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.1</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <LangVersion>10</LangVersion>
     <RootNamespace>Linearstar.Windows.RawInput</RootNamespace>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <Company>Linearstar</Company>
@@ -16,6 +16,7 @@
     <FileVersion>0.0.0.0</FileVersion>
     <PackageTags>Windows RawInput</PackageTags>
     <RepositoryUrl>https://github.com/mfakane/rawinput-sharp</RepositoryUrl>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>

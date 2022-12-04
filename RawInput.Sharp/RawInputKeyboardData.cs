@@ -1,32 +1,31 @@
 ﻿using System.Runtime.InteropServices;
 using Linearstar.Windows.RawInput.Native;
 
-namespace Linearstar.Windows.RawInput
+namespace Linearstar.Windows.RawInput;
+
+public class RawInputKeyboardData : RawInputData
 {
-    public class RawInputKeyboardData : RawInputData
+    public RawKeyboard Keyboard { get; }
+
+    public RawInputKeyboardData(RawInputHeader header, RawKeyboard keyboard)
+        : base(header) =>
+        Keyboard = keyboard;
+
+    public override unsafe byte[] ToStructure()
     {
-        public RawKeyboard Keyboard { get; }
+        var headerSize = MarshalEx.SizeOf<RawInputHeader>();
+        var mouseSize = MarshalEx.SizeOf<RawKeyboard>();
+        var bytes = new byte[headerSize + mouseSize];
 
-        public RawInputKeyboardData(RawInputHeader header, RawKeyboard keyboard)
-            : base(header) =>
-            Keyboard = keyboard;
-
-        public override unsafe byte[] ToStructure()
+        fixed (byte* bytesPtr = bytes)
         {
-            var headerSize = MarshalEx.SizeOf<RawInputHeader>();
-            var mouseSize = MarshalEx.SizeOf<RawKeyboard>();
-            var bytes = new byte[headerSize + mouseSize];
-
-            fixed (byte* bytesPtr = bytes)
-            {
-                *(RawInputHeader*)bytesPtr = Header;
-                *(RawKeyboard*)(bytesPtr + headerSize) = Keyboard;
-            }
-
-            return bytes;
+            *(RawInputHeader*)bytesPtr = Header;
+            *(RawKeyboard*)(bytesPtr + headerSize) = Keyboard;
         }
 
-        public override string ToString() =>
-            $"{{{Header}, {Keyboard}}}";
+        return bytes;
     }
+
+    public override string ToString() =>
+        $"{{{Header}, {Keyboard}}}";
 }

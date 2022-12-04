@@ -2,96 +2,95 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Linearstar.Windows.RawInput.Native
+namespace Linearstar.Windows.RawInput.Native;
+
+public static class HidD
 {
-    public static class HidD
+    [DllImport("hid", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    static extern bool HidD_GetManufacturerString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+
+    [DllImport("hid", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    static extern bool HidD_GetProductString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+
+    [DllImport("hid")]
+    [return: MarshalAs(UnmanagedType.U1)]
+    static extern bool HidD_GetPreparsedData(IntPtr HidDeviceObject, out IntPtr PreparsedData);
+
+    [DllImport("hid")]
+    [return: MarshalAs(UnmanagedType.U1)]
+    static extern bool HidD_FreePreparsedData(IntPtr PreparsedData);
+
+    public static HidDeviceHandle OpenDevice(string devicePath)
     {
-        [DllImport("hid", CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        static extern bool HidD_GetManufacturerString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+        var deviceHandle = Kernel32.CreateFile(devicePath, Kernel32.ShareMode.Read | Kernel32.ShareMode.Write, Kernel32.CreateDisposition.OpenExisting);
 
-        [DllImport("hid", CharSet = CharSet.Unicode)]
-        [return: MarshalAs(UnmanagedType.U1)]
-        static extern bool HidD_GetProductString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+        return (HidDeviceHandle)deviceHandle;
+    }
 
-        [DllImport("hid")]
-        [return: MarshalAs(UnmanagedType.U1)]
-        static extern bool HidD_GetPreparsedData(IntPtr HidDeviceObject, out IntPtr PreparsedData);
-
-        [DllImport("hid")]
-        [return: MarshalAs(UnmanagedType.U1)]
-        static extern bool HidD_FreePreparsedData(IntPtr PreparsedData);
-
-        public static HidDeviceHandle OpenDevice(string devicePath)
-        {
-            var deviceHandle = Kernel32.CreateFile(devicePath, Kernel32.ShareMode.Read | Kernel32.ShareMode.Write, Kernel32.CreateDisposition.OpenExisting);
-
-            return (HidDeviceHandle)deviceHandle;
-        }
-
-        public static bool TryOpenDevice(string devicePath, out HidDeviceHandle device)
-        {
-            if (!Kernel32.TryCreateFile(
+    public static bool TryOpenDevice(string devicePath, out HidDeviceHandle device)
+    {
+        if (!Kernel32.TryCreateFile(
                 devicePath,
                 Kernel32.ShareMode.Read | Kernel32.ShareMode.Write,
                 Kernel32.CreateDisposition.OpenExisting,
                 out var deviceHandle))
-            {
-                device = HidDeviceHandle.Zero;
-                return false;
-            }
-
-            device = (HidDeviceHandle)deviceHandle;
-            return true;
-        }
-
-        public static void CloseDevice(HidDeviceHandle device)
         {
-            var deviceHandle = HidDeviceHandle.GetRawValue(device);
-
-            Kernel32.CloseHandle(deviceHandle);
+            device = HidDeviceHandle.Zero;
+            return false;
         }
 
-        public static string GetManufacturerString(HidDeviceHandle device)
-        {
-            var deviceHandle = HidDeviceHandle.GetRawValue(device);
-            
-            return GetString(deviceHandle, HidD_GetManufacturerString);
-        }
+        device = (HidDeviceHandle)deviceHandle;
+        return true;
+    }
 
-        public static string GetProductString(HidDeviceHandle device)
-        {
-            var deviceHandle = HidDeviceHandle.GetRawValue(device);
+    public static void CloseDevice(HidDeviceHandle device)
+    {
+        var deviceHandle = HidDeviceHandle.GetRawValue(device);
 
-            return GetString(deviceHandle, HidD_GetProductString);
-        }
+        Kernel32.CloseHandle(deviceHandle);
+    }
 
-        public static HidPreparsedData GetPreparsedData(HidDeviceHandle device)
-        {
-            var deviceHandle = HidDeviceHandle.GetRawValue(device);
+    public static string? GetManufacturerString(HidDeviceHandle device)
+    {
+        var deviceHandle = HidDeviceHandle.GetRawValue(device);
 
-            HidD_GetPreparsedData(deviceHandle, out var preparsedData);
+        return GetString(deviceHandle, HidD_GetManufacturerString);
+    }
 
-            return (HidPreparsedData)preparsedData;
-        }
+    public static string? GetProductString(HidDeviceHandle device)
+    {
+        var deviceHandle = HidDeviceHandle.GetRawValue(device);
 
-        public static void FreePreparsedData(HidPreparsedData preparsedData)
-        {
-            var preparsedDataPointer = HidPreparsedData.GetRawValue(preparsedData);
+        return GetString(deviceHandle, HidD_GetProductString);
+    }
 
-            HidD_FreePreparsedData(preparsedDataPointer);
-        }
+    public static HidPreparsedData GetPreparsedData(HidDeviceHandle device)
+    {
+        var deviceHandle = HidDeviceHandle.GetRawValue(device);
 
-        static string GetString(IntPtr handle, Func<IntPtr, byte[], uint, bool> proc)
-        {
-            var buf = new byte[256];
+        HidD_GetPreparsedData(deviceHandle, out var preparsedData);
 
-            if (!proc(handle, buf, (uint)buf.Length))
-                return null;
+        return (HidPreparsedData)preparsedData;
+    }
 
-            var str = Encoding.Unicode.GetString(buf, 0, buf.Length);
+    public static void FreePreparsedData(HidPreparsedData preparsedData)
+    {
+        var preparsedDataPointer = HidPreparsedData.GetRawValue(preparsedData);
 
-            return str.Contains("\0") ? str.Substring(0, str.IndexOf('\0')) : str;
-        }
+        HidD_FreePreparsedData(preparsedDataPointer);
+    }
+
+    static string? GetString(IntPtr handle, Func<IntPtr, byte[], uint, bool> proc)
+    {
+        var buf = new byte[256];
+
+        if (!proc(handle, buf, (uint)buf.Length))
+            return null;
+
+        var str = Encoding.Unicode.GetString(buf, 0, buf.Length);
+
+        return str.Contains("\0") ? str.Substring(0, str.IndexOf('\0')) : str;
     }
 }
