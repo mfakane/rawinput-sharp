@@ -43,9 +43,7 @@ public readonly struct HidUsageAndPage : IEquatable<HidUsageAndPage>
         obj is HidUsageAndPage huap ? Equals(huap) : base.Equals(obj);
 
     public override int GetHashCode() =>
-        typeof(HidUsageAndPage).GetHashCode() ^
-        UsagePage.GetHashCode() ^
-        Usage.GetHashCode();
+        UsagePage << 16 | Usage;
 
     public override string ToString() =>
         $"{UsagePage:X2}:{Usage:X2}";
