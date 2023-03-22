@@ -1,36 +1,33 @@
 ﻿using System;
 using Linearstar.Windows.RawInput.Native;
 
-namespace Linearstar.Windows.RawInput
+namespace Linearstar.Windows.RawInput;
+
+public class HidButtonState
 {
-    public class HidButtonState
+    readonly byte[] report;
+    readonly int reportLength;
+
+    public HidButton Button { get; }
+
+    public bool IsActive
     {
-        readonly byte[] report;
-        readonly int reportLength;
-
-        public HidButton Button { get; }
-
-        public bool IsActive
+        get
         {
-            get
-            {
-                using (var preparsedDataPtr = Button.reader.GetPreparsedData())
-                {
-                    var activeUsages = HidP.GetUsages(preparsedDataPtr, HidPReportType.Input, Button.buttonCaps, report, reportLength);
+            using var preparsedDataPtr = Button.reader.GetPreparsedData();
+            var activeUsages = HidP.GetUsages(preparsedDataPtr, HidPReportType.Input, Button.buttonCaps, report, reportLength);
 
-                    return Array.IndexOf(activeUsages, Button.UsageAndPage.Usage) != -1;
-                }
-            }
+            return Array.IndexOf(activeUsages, Button.UsageAndPage.Usage) != -1;
         }
-
-        internal HidButtonState(HidButton button, byte[] report, int reportLength)
-        {
-            Button = button;
-            this.report = report;
-            this.reportLength = reportLength;
-        }
-
-        public override string ToString() =>
-            $"Button: {{{Button}}}, IsActive: {IsActive}";
     }
+
+    internal HidButtonState(HidButton button, byte[] report, int reportLength)
+    {
+        Button = button;
+        this.report = report;
+        this.reportLength = reportLength;
+    }
+
+    public override string ToString() =>
+        $"Button: {{{Button}}}, IsActive: {IsActive}";
 }

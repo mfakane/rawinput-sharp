@@ -1,11 +1,10 @@
-﻿namespace Linearstar.Windows.RawInput
+﻿namespace Linearstar.Windows.RawInput;
+
+public enum RawInputDigitizerContactKind
 {
-    public enum RawInputDigitizerContactKind
-    {
-        None,
-        Finger,
-        Hover,
-        Pen,
-        Eraser,
-    }
+    None,
+    Finger,
+    Hover,
+    Pen,
+    Eraser,
 }

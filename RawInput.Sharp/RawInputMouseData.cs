@@ -1,32 +1,31 @@
 ﻿using System.Runtime.InteropServices;
 using Linearstar.Windows.RawInput.Native;
 
-namespace Linearstar.Windows.RawInput
+namespace Linearstar.Windows.RawInput;
+
+public class RawInputMouseData : RawInputData
 {
-    public class RawInputMouseData : RawInputData
+    public RawMouse Mouse { get; }
+
+    public RawInputMouseData(RawInputHeader header, RawMouse mouse)
+        : base(header) =>
+        Mouse = mouse;
+
+    public override unsafe byte[] ToStructure()
     {
-        public RawMouse Mouse { get; }
+        var headerSize = MarshalEx.SizeOf<RawInputHeader>();
+        var mouseSize = MarshalEx.SizeOf<RawMouse>();
+        var bytes = new byte[headerSize + mouseSize];
 
-        public RawInputMouseData(RawInputHeader header, RawMouse mouse)
-            : base(header) =>
-            Mouse = mouse;
-
-        public override unsafe byte[] ToStructure()
+        fixed (byte* bytesPtr = bytes)
         {
-            var headerSize = Marshal.SizeOf<RawInputHeader>();
-            var mouseSize = Marshal.SizeOf<RawMouse>();
-            var bytes = new byte[headerSize + mouseSize];
-
-            fixed (byte* bytesPtr = bytes)
-            {
-                *(RawInputHeader*)bytesPtr = Header;
-                *(RawMouse*)(bytesPtr + headerSize) = Mouse;
-            }
-
-            return bytes;
+            *(RawInputHeader*)bytesPtr = Header;
+            *(RawMouse*)(bytesPtr + headerSize) = Mouse;
         }
 
-        public override string ToString() =>
-            $"{{{Header}, {Mouse}}}";
+        return bytes;
     }
+
+    public override string ToString() =>
+        $"{{{Header}, {Mouse}}}";
 }
