@@ -1,7 +1,7 @@
 ﻿# RawInput.Sharp
 
-A simple wrapper library for Raw Input.
-Available on .NET Standard 1.1, but works only on Windows.
+A simple wrapper library for Windows [Raw Input](https://learn.microsoft.com/en-us/windows/win32/inputdev/raw-input).
+Available on .NET Standard 1.1 and .NET Framework 4.6.1.
 
 ## NuGet
 
@@ -60,3 +60,16 @@ protected override void WndProc(ref Message m)
     base.WndProc(ref m);
 }
 ```
+
+### Further examples
+
+- [RawInput.Sharp.SimpleExample](RawInput.Sharp.SimpleExample)
+  - A simple example that shows keyboard input events.
+- [RawInput.Sharp.SimpleExample.WPF](RawInput.Sharp.SimpleExample.WPF)
+  - WPF version of the prior one.
+- [RawInput.Sharp.DigitizerExample](RawInput.Sharp.DigitizerExample)
+  - An example handling digitizers, such as pen tablets, touch screens, and touch pads.
+
+## License
+
+[zlib License](LICENSE.txt)
