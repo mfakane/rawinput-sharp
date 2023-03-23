@@ -77,9 +77,7 @@ public static class HidD
 
     public static void FreePreparsedData(HidPreparsedData preparsedData)
     {
-        var preparsedDataPointer = HidPreparsedData.GetRawValue(preparsedData);
-
-        HidD_FreePreparsedData(preparsedDataPointer);
+        HidD_FreePreparsedData((IntPtr)preparsedData);
     }
 
     static string? GetString(IntPtr handle, Func<IntPtr, byte[], uint, bool> proc)

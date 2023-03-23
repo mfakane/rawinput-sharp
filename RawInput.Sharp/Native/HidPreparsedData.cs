@@ -5,7 +5,7 @@ namespace Linearstar.Windows.RawInput.Native;
 /// <summary>
 /// HIDP_PREPARSED_DATA
 /// </summary>
-public readonly struct HidPreparsedData : IEquatable<HidPreparsedData>
+public readonly struct HidPreparsedData : IHidPreparsedData, IEquatable<HidPreparsedData>
 {
     readonly IntPtr value;
 
@@ -16,9 +16,9 @@ public readonly struct HidPreparsedData : IEquatable<HidPreparsedData>
         this.value = value;
     }
 
-    public static IntPtr GetRawValue(HidPreparsedData handle) => handle.value;
-
     public static explicit operator HidPreparsedData(IntPtr value) => new(value);
+
+    public static explicit operator IntPtr(HidPreparsedData preparsedData) => preparsedData.value;
 
     public static bool operator ==(HidPreparsedData a, HidPreparsedData b) => a.Equals(b);
 
@@ -33,4 +33,6 @@ public readonly struct HidPreparsedData : IEquatable<HidPreparsedData>
     public override int GetHashCode() => value.GetHashCode();
 
     public override string ToString() => value.ToString();
+
+    public unsafe ref byte GetPinnableReference() => ref *(byte*)value.ToPointer();
 }

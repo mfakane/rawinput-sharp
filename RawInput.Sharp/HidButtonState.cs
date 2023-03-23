@@ -10,14 +10,16 @@ public class HidButtonState
 
     public HidButton Button { get; }
 
-    public bool IsActive
+    public unsafe bool IsActive
     {
         get
         {
-            using var preparsedDataPtr = Button.reader.GetPreparsedData();
-            var activeUsages = HidP.GetUsages(preparsedDataPtr, HidPReportType.Input, Button.buttonCaps, report, reportLength);
+            fixed (void* preparsedData = Button.reader.PreparsedData)
+            {
+                var activeUsages = HidP.GetUsages((IntPtr)preparsedData, HidPReportType.Input, Button.buttonCaps, report, reportLength);
 
-            return Array.IndexOf(activeUsages, Button.UsageAndPage.Usage) != -1;
+                return Array.IndexOf(activeUsages, Button.UsageAndPage.Usage) != -1;
+            }
         }
     }
 

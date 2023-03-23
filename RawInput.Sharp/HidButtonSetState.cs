@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Linearstar.Windows.RawInput.Native;
 
@@ -11,12 +12,12 @@ public class HidButtonSetState : IEnumerable<HidButtonState>
 
     public HidButtonSet ButtonSet { get; }
 
-    public ushort[] ActiveUsages
+    public unsafe ushort[] ActiveUsages
     {
         get
         {
-            using var preparsedDataPtr = ButtonSet.reader.GetPreparsedData();
-            return HidP.GetUsages(preparsedDataPtr, HidPReportType.Input, ButtonSet.buttonCaps, report, reportLength);
+            fixed (void* preparsedData = ButtonSet.reader.PreparsedData)
+                return HidP.GetUsages((IntPtr)preparsedData, HidPReportType.Input, ButtonSet.buttonCaps, report, reportLength);
         }
     }
 

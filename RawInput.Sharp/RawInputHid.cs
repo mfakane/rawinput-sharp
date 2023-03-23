@@ -22,6 +22,6 @@ public class RawInputHid : RawInputDevice
     {
         if (deviceInfo.Type != RawInputDeviceType.Hid) throw new ArgumentException($"Device type must be {RawInputDeviceType.Hid}.", nameof(deviceInfo));
 
-        hidReader = new Lazy<HidReader>(() => new HidReader(GetPreparsedData()));
+        hidReader = new Lazy<HidReader>(() => new HidReader(new HidPreparsedByteArrayData(GetPreparsedData())));
     }
 }

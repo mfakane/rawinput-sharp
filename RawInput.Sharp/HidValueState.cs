@@ -1,4 +1,5 @@
-﻿using Linearstar.Windows.RawInput.Native;
+﻿using System;
+using Linearstar.Windows.RawInput.Native;
 
 namespace Linearstar.Windows.RawInput;
 
@@ -9,21 +10,21 @@ public class HidValueState
 
     public HidValue Value { get; }
 
-    public int CurrentValue
+    public unsafe int CurrentValue
     {
         get
         {
-            using (var preparsedDataPtr = Value.reader.GetPreparsedData())
-                return HidP.GetUsageValue(preparsedDataPtr, HidPReportType.Input, Value.valueCaps, Value.UsageAndPage.Usage, report, reportLength);
+            fixed (void* preparsedData = Value.reader.PreparsedData)
+                return HidP.GetUsageValue((IntPtr)preparsedData, HidPReportType.Input, Value.valueCaps, Value.UsageAndPage.Usage, report, reportLength);
         }
     }
 
-    public int? ScaledValue
+    public unsafe int? ScaledValue
     {
         get
         {
-            using (var preparsedDataPtr = Value.reader.GetPreparsedData())
-                return HidP.TryGetScaledUsageValue(preparsedDataPtr, HidPReportType.Input, Value.valueCaps, Value.UsageAndPage.Usage, report, reportLength, out var value) == NtStatus.Success
+            fixed (void* preparsedData = Value.reader.PreparsedData)
+                return HidP.TryGetScaledUsageValue((IntPtr)preparsedData, HidPReportType.Input, Value.valueCaps, Value.UsageAndPage.Usage, report, reportLength, out var value) == NtStatus.Success
                     ? value
                     : null;
         }
