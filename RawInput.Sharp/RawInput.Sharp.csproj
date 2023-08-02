@@ -16,7 +16,7 @@
     <PackageTags>Windows RawInput</PackageTags>
     <RepositoryUrl>https://github.com/mfakane/rawinput-sharp</RepositoryUrl>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>netstandard1.1;net461</TargetFrameworks>
+    <TargetFrameworks>netstandard1.1;net461;net7.0</TargetFrameworks>
   </PropertyGroup>
 
 </Project>
