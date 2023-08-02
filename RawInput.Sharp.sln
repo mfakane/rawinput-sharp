@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.352
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.33920.267
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RawInput.Sharp", "RawInput.Sharp\RawInput.Sharp.csproj", "{47C40BEA-5191-46A3-BE27-4B7A1B725C31}"
 EndProject
@@ -11,11 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInput.Sharp.SimpleExample", "RawInput.Sharp.SimpleExample\RawInput.Sharp.SimpleExample.csproj", "{F129A5A1-95EA-41CF-98E3-ECB61BEB5040}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RawInput.Sharp.SimpleExample", "RawInput.Sharp.SimpleExample\RawInput.Sharp.SimpleExample.csproj", "{F129A5A1-95EA-41CF-98E3-ECB61BEB5040}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInput.Sharp.SimpleExample.WPF", "RawInput.Sharp.SimpleExample.WPF\RawInput.Sharp.SimpleExample.WPF.csproj", "{63B773C2-7995-4A6A-AAE8-C0DEF73454F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RawInput.Sharp.SimpleExample.WPF", "RawInput.Sharp.SimpleExample.WPF\RawInput.Sharp.SimpleExample.WPF.csproj", "{63B773C2-7995-4A6A-AAE8-C0DEF73454F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInput.Sharp.DigitizerExample", "RawInput.Sharp.DigitizerExample\RawInput.Sharp.DigitizerExample.csproj", "{59C646E7-8E08-4B06-9F2E-B66962448BA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RawInput.Sharp.DigitizerExample", "RawInput.Sharp.DigitizerExample\RawInput.Sharp.DigitizerExample.csproj", "{59C646E7-8E08-4B06-9F2E-B66962448BA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RawInput.Sharp.SimpleExample.Win32", "RawInput.Sharp.SimpleExample.Win32\RawInput.Sharp.SimpleExample.Win32.csproj", "{E3FBC4E2-70F1-447A-980B-0351E9D525A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{59C646E7-8E08-4B06-9F2E-B66962448BA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59C646E7-8E08-4B06-9F2E-B66962448BA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59C646E7-8E08-4B06-9F2E-B66962448BA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3FBC4E2-70F1-447A-980B-0351E9D525A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3FBC4E2-70F1-447A-980B-0351E9D525A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3FBC4E2-70F1-447A-980B-0351E9D525A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3FBC4E2-70F1-447A-980B-0351E9D525A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
