@@ -20,7 +20,7 @@ public readonly struct HidDeviceHandle : IEquatable<HidDeviceHandle>
 
     public bool Equals(HidDeviceHandle other) => value.Equals(other.value);
 
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is HidDeviceHandle other &&
         Equals(other);
 

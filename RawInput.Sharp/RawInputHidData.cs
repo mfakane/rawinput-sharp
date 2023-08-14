@@ -11,12 +11,12 @@ public class RawInputHidData : RawInputData
 
     public HidButtonSetState[] ButtonSetStates =>
         Device != null
-            ? Hid.ToHidReports().SelectMany(report => Device?.Reader.ButtonSets.Select(x => x.GetStates(report))).ToArray()
+            ? Hid.ToHidReports().SelectMany(report => Device.Reader.ButtonSets.Select(x => x.GetStates(report))).ToArray()
             : new HidButtonSetState[0];
 
     public HidValueSetState[] ValueSetStates =>
         Device != null
-            ? Hid.ToHidReports().SelectMany(report => Device?.Reader.ValueSets.Select(x => x.GetStates(report))).ToArray()
+            ? Hid.ToHidReports().SelectMany(report => Device.Reader.ValueSets.Select(x => x.GetStates(report))).ToArray()
             : new HidValueSetState[0];
 
     protected RawInputHidData(RawInputHeader header, RawHid hid)

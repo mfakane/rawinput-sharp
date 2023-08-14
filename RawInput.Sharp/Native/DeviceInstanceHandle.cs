@@ -23,7 +23,7 @@ public readonly struct DeviceInstanceHandle : IEquatable<DeviceInstanceHandle>
 
     public bool Equals(DeviceInstanceHandle other) => value.Equals(other.value);
 
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is DeviceInstanceHandle other &&
         Equals(other);
 
