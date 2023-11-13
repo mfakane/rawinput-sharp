@@ -6,6 +6,7 @@ namespace Linearstar.Windows.RawInput;
 
 public abstract class RawInputDevice
 {
+    bool gotAttributes;
     string? productName;
     string? manufacturerName;
 
@@ -19,7 +20,7 @@ public abstract class RawInputDevice
     {
         get
         {
-            if (manufacturerName == null) GetAttributes();
+            if (manufacturerName == null) GetAttributesOnce();
             return manufacturerName;
         }
     }
@@ -28,7 +29,7 @@ public abstract class RawInputDevice
     {
         get
         {
-            if (productName == null) GetAttributes();
+            if (productName == null) GetAttributesOnce();
             return productName;
         }
     }
@@ -40,10 +41,13 @@ public abstract class RawInputDevice
     public abstract int VendorId { get; }
     public abstract int ProductId { get; }
 
-    void GetAttributes()
+    void GetAttributesOnce()
     {
+        if (gotAttributes) return;
+        gotAttributes = true;
+
         if (DevicePath == null) return;
-        if (manufacturerName == null || productName == null) GetAttributesFromHidD();
+        GetAttributesFromHidD();
         if (manufacturerName == null || productName == null) GetAttributesFromCfgMgr();
     }
 
