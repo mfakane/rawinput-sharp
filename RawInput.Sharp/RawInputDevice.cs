@@ -9,6 +9,7 @@ public abstract class RawInputDevice
     bool gotAttributes;
     string? productName;
     string? manufacturerName;
+    string? serialNumber;
 
     protected RawInputDeviceInfo DeviceInfo { get; }
 
@@ -31,6 +32,15 @@ public abstract class RawInputDevice
         {
             if (productName == null) GetAttributesOnce();
             return productName;
+        }
+    }
+
+    public string? SerialNumber
+    {
+        get
+        {
+            if (serialNumber == null) GetAttributesOnce();
+            return serialNumber;
         }
     }
 
@@ -59,6 +69,7 @@ public abstract class RawInputDevice
         {
             manufacturerName ??= HidD.GetManufacturerString(device);
             productName ??= HidD.GetProductString(device);
+            serialNumber ??= HidD.GetSerialNumberString(device);
         }
         finally
         {

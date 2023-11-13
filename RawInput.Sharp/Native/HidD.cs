@@ -14,6 +14,10 @@ public static class HidD
     [return: MarshalAs(UnmanagedType.U1)]
     static extern bool HidD_GetProductString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
 
+    [DllImport("hid", CharSet = CharSet.Unicode)]
+    [return: MarshalAs(UnmanagedType.U1)]
+    static extern bool HidD_GetSerialNumberString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+
     [DllImport("hid")]
     [return: MarshalAs(UnmanagedType.U1)]
     static extern bool HidD_GetPreparsedData(IntPtr HidDeviceObject, out IntPtr PreparsedData);
@@ -64,6 +68,13 @@ public static class HidD
         var deviceHandle = HidDeviceHandle.GetRawValue(device);
 
         return GetString(deviceHandle, HidD_GetProductString);
+    }
+
+    public static string? GetSerialNumberString(HidDeviceHandle device)
+    {
+        var deviceHandle = HidDeviceHandle.GetRawValue(device);
+
+        return GetString(deviceHandle, HidD_GetSerialNumberString);
     }
 
     public static HidPreparsedData GetPreparsedData(HidDeviceHandle device)
