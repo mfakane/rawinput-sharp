@@ -39,7 +39,7 @@ public readonly struct HidUsageAndPage : IEquatable<HidUsageAndPage>
     public bool Equals(HidUsageAndPage other) =>
         GetHashCode() == other.GetHashCode();
 
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is HidUsageAndPage huap ? Equals(huap) : base.Equals(obj);
 
     public override int GetHashCode() =>

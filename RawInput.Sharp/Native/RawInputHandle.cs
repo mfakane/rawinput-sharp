@@ -23,7 +23,7 @@ public readonly struct RawInputHandle : IEquatable<RawInputHandle>
 
     public bool Equals(RawInputHandle other) => value.Equals(other.value);
 
-    public override bool Equals(object obj) =>
+    public override bool Equals(object? obj) =>
         obj is RawInputHandle other &&
         Equals(other);
 
