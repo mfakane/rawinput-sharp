@@ -31,7 +31,9 @@ try
     // Register the HidUsageAndPage to watch any device.
     RawInputDevice.RegisterDevice(HidUsageAndPage.Keyboard,
         RawInputDeviceFlags.ExInputSink | RawInputDeviceFlags.NoLegacy, window.Handle);
-
+    RawInputDevice.RegisterDevice(HidUsageAndPage.Mouse,
+        RawInputDeviceFlags.ExInputSink | RawInputDeviceFlags.NoLegacy, window.Handle);
+    
     Application.Run();
 }
 finally
