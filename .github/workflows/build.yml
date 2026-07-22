@@ -69,7 +69,7 @@ jobs:
             restore.log
             build.log
             warnings.log
-            RawInput.Sharp/bin/Release/**/*.nupkg
 
-# This workflow verifies compilation and package generation only. It does not
-# test physical HID devices, runtime input compatibility, or publish packages.
+# This workflow verifies compilation only. Package creation and publication are
+# handled by the manual release workflow. It does not test physical HID
+# devices or runtime input compatibility.

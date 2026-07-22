@@ -1,0 +1,172 @@
+name: Manual NuGet release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version (must match RawInput.Sharp.csproj)
+        required: true
+        default: '0.1.3'
+        type: string
+      release_notes:
+        description: Markdown release notes
+        required: false
+        default: 'See the changelog and verification evidence in this release.'
+        type: string
+      publish:
+        description: Push to NuGet and create the GitHub Release
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Pack and optionally publish
+    runs-on: windows-latest
+    env:
+      PACKAGE_ID: RawInput.Sharp
+      NUGET_SOURCE: https://api.nuget.org/v3/index.json
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Validate requested version
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+          SHOULD_PUBLISH: ${{ inputs.publish }}
+          RELEASE_NOTES: ${{ inputs.release_notes }}
+        run: |
+          if ($env:REQUESTED_VERSION -notmatch '^\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$') {
+            throw "Invalid semantic package version: $env:REQUESTED_VERSION"
+          }
+
+          [xml]$project = Get-Content -Raw RawInput.Sharp/RawInput.Sharp.csproj
+          $projectVersion = @($project.Project.PropertyGroup | ForEach-Object { $_.Version } | Where-Object { $_ })[0]
+          if ($projectVersion -ne $env:REQUESTED_VERSION) {
+            throw "Requested version $env:REQUESTED_VERSION does not match project version $projectVersion"
+          }
+
+          if ($env:SHOULD_PUBLISH -eq 'true') {
+            $tag = "v$env:REQUESTED_VERSION"
+            git ls-remote --exit-code origin "refs/tags/$tag" *> $null
+            if ($LASTEXITCODE -eq 0) {
+              throw "Git tag $tag already exists; refusing to republish"
+            }
+          }
+
+          $env:RELEASE_NOTES | Set-Content -Encoding utf8 release-notes.md
+
+      - name: Restore library
+        shell: pwsh
+        run: |
+          dotnet restore RawInput.Sharp/RawInput.Sharp.csproj
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build library for package symbols
+        shell: pwsh
+        run: |
+          dotnet build RawInput.Sharp/RawInput.Sharp.csproj --no-restore --configuration Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Pack nupkg and snupkg
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          New-Item -ItemType Directory -Force artifacts | Out-Null
+          dotnet pack RawInput.Sharp/RawInput.Sharp.csproj --no-build --configuration Release --output artifacts /p:PackageVersion=$env:REQUESTED_VERSION
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Validate package contents and Source Link symbols
+        shell: pwsh
+        env:
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $nupkg = Join-Path $PWD "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.nupkg"
+          $snupkg = Join-Path $PWD "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.snupkg"
+          if (-not (Test-Path $nupkg)) { throw "Missing $nupkg" }
+          if (-not (Test-Path $snupkg)) { throw "Missing $snupkg" }
+
+          $packageArchive = [System.IO.Compression.ZipFile]::OpenRead($nupkg)
+          try {
+            $names = @($packageArchive.Entries | ForEach-Object { $_.FullName })
+            if ($names -notcontains 'README.md') { throw 'Package README.md is missing' }
+            if (-not ($names -match '\.nuspec$')) { throw 'Package nuspec is missing' }
+            if (-not ($names -match '^lib/')) { throw 'Package library files are missing' }
+          } finally {
+            $packageArchive.Dispose()
+          }
+
+          $symbolArchive = [System.IO.Compression.ZipFile]::OpenRead($snupkg)
+          try {
+            if (-not ($symbolArchive.Entries.FullName -match '\.pdb$')) { throw 'Symbols package contains no PDB' }
+          } finally {
+            $symbolArchive.Dispose()
+          }
+
+          $toolPath = Join-Path $PWD 'sourcelink-tools'
+          dotnet tool install --tool-path $toolPath sourcelink --version 3.1.1
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $symbolDir = Join-Path $PWD 'symbols'
+          [System.IO.Compression.ZipFile]::ExtractToDirectory($snupkg, $symbolDir)
+          $pdbs = Get-ChildItem $symbolDir -Recurse -Filter '*.pdb'
+          if (-not $pdbs) { throw 'No PDBs extracted from symbols package' }
+          foreach ($pdb in $pdbs) {
+            & (Join-Path $toolPath 'sourcelink.exe') test $pdb.FullName
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+
+          Get-ChildItem artifacts | Select-Object Name, Length | Format-Table | Out-String | Tee-Object package-contents.log
+
+      - name: Upload packages and validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package-${{ inputs.version }}
+          if-no-files-found: warn
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+            package-contents.log
+            release-notes.md
+
+      - name: Publish package to NuGet
+        if: ${{ inputs.publish == true }}
+        shell: pwsh
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) { throw 'NUGET_API_KEY repository secret is required when publish=true' }
+          dotnet nuget push "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.nupkg" --api-key $env:NUGET_API_KEY --source $env:NUGET_SOURCE --skip-duplicate
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Create GitHub Release
+        if: ${{ inputs.publish == true }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+        run: |
+          gh release create "v$env:REQUESTED_VERSION" `
+            "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.nupkg" `
+            "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.snupkg" `
+            --target $env:GITHUB_SHA `
+            --title "RawInput.Sharp $env:REQUESTED_VERSION" `
+            --notes-file release-notes.md
+
+# publish=false is the default and performs a complete package dry-run without
+# pushing to NuGet or creating a GitHub Release.
