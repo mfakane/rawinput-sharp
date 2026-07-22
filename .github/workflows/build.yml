@@ -59,7 +59,7 @@ jobs:
 
       - name: Upload build evidence and package
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: windows-solution-build-evidence
           if-no-files-found: warn
