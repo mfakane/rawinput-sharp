@@ -1,0 +1,75 @@
+name: Build solution
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Restore and build on Windows
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Record environment
+        shell: pwsh
+        run: |
+          dotnet --info | Tee-Object -FilePath dotnet-info.log
+          dotnet sln RawInput.Sharp.sln list | Tee-Object -FilePath solution-projects.log
+
+      - name: Restore solution
+        shell: pwsh
+        run: |
+          dotnet restore RawInput.Sharp.sln 2>&1 | Tee-Object -FilePath restore.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Build solution in Release configuration
+        shell: pwsh
+        run: |
+          dotnet build RawInput.Sharp.sln --no-restore --configuration Release 2>&1 | Tee-Object -FilePath build.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Collect build evidence
+        if: always()
+        shell: pwsh
+        run: |
+          $logs = Get-ChildItem -Path . -Recurse -File -Filter '*.log' -ErrorAction SilentlyContinue
+          if ($logs) {
+            $warningLines = $logs | Get-Content | Select-String -Pattern 'warning|WARN|NETSDK' -CaseSensitive:$false
+            if ($warningLines) {
+              $warningLines | ForEach-Object { $_.Line } | Set-Content -Path warnings.log
+            } else {
+              'No warning lines found in captured logs.' | Set-Content -Path warnings.log
+            }
+          } else {
+            'No build logs were produced.' | Set-Content -Path warnings.log
+          }
+
+      - name: Upload build evidence and package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-solution-build-evidence
+          if-no-files-found: warn
+          path: |
+            dotnet-info.log
+            solution-projects.log
+            restore.log
+            build.log
+            warnings.log
+            RawInput.Sharp/bin/Release/**/*.nupkg
+
+# This workflow verifies compilation and package generation only. It does not
+# test physical HID devices, runtime input compatibility, or publish packages.
