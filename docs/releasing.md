@@ -4,6 +4,24 @@ This repository keeps package creation separate from the normal solution build. 
 `Build solution` workflow only restores and builds. Package creation and publication
 are available through the manually dispatched `Manual NuGet release` workflow.
 
+## Trusted Publishing setup
+
+Publishing uses NuGet Trusted Publishing (OIDC), not a long-lived NuGet API key.
+Configure one Trusted Publishing policy on nuget.org with these values:
+
+- Repository Owner: `mfakane`
+- Repository: `rawinput-sharp`
+- Workflow File: `release.yml`
+- Environment: leave empty (this workflow does not declare a GitHub environment)
+
+Then add exactly one repository secret:
+
+- `NUGET_USER`: the nuget.org profile name that owns the package; do not use an email address
+
+The workflow has `id-token: write` permission and calls `NuGet/login@v1` during a
+`publish=true` run. NuGet exchanges the GitHub OIDC token for a short-lived
+credential, which is used only by that job. No `NUGET_API_KEY` secret is required.
+
 ## Dry run
 
 1. Open **Actions → Manual NuGet release → Run workflow**.
@@ -21,13 +39,13 @@ contact NuGet and does not create a GitHub Release.
 Publishing is a human/PO-controlled operation:
 
 1. Confirm the version, release notes, build evidence, and intended scope with the PO.
-2. Add or update the repository secret `NUGET_API_KEY` with a NuGet API key scoped to
-   the `RawInput.Sharp` package. Do not put the key in workflow inputs or files.
+2. Confirm the nuget.org Trusted Publishing policy and repository secret `NUGET_USER` are configured as described above.
 3. Dispatch the workflow with the exact project version and set `publish` to `true`.
 4. The workflow refuses to publish if the requested version does not equal the
    project `<Version>` or if the corresponding `v<version>` tag already exists.
-5. On success it pushes the `.nupkg` to `https://api.nuget.org/v3/index.json` and
-   creates the matching GitHub Release/tag with the `.nupkg` and `.snupkg` attached.
+5. On success it pushes the `.nupkg` to `https://api.nuget.org/v3/index.json` using
+   the short-lived Trusted Publishing credential and creates the matching GitHub
+   Release/tag with the `.nupkg` and `.snupkg` attached.
 
 The workflow never publishes from a push to `master` or from a normal pull request.
 A failed publish can be investigated from the workflow logs; rerun only after

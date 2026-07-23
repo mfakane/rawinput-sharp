@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   release:
@@ -143,15 +144,30 @@ jobs:
             package-contents.log
             release-notes.md
 
+      - name: Validate Trusted Publishing user
+        if: ${{ inputs.publish == true }}
+        shell: pwsh
+        env:
+          NUGET_USER: ${{ secrets.NUGET_USER }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:NUGET_USER)) { throw 'NUGET_USER repository secret is required when publish=true' }
+
+      - name: NuGet Trusted Publishing login
+        if: ${{ inputs.publish == true }}
+        id: nuget-login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
       - name: Publish package to NuGet
         if: ${{ inputs.publish == true }}
         shell: pwsh
         env:
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          TEMP_NUGET_KEY: ${{ steps.nuget-login.outputs.NUGET_API_KEY }}
           REQUESTED_VERSION: ${{ inputs.version }}
         run: |
-          if ([string]::IsNullOrWhiteSpace($env:NUGET_API_KEY)) { throw 'NUGET_API_KEY repository secret is required when publish=true' }
-          dotnet nuget push "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.nupkg" --api-key $env:NUGET_API_KEY --source $env:NUGET_SOURCE --skip-duplicate
+          if ([string]::IsNullOrWhiteSpace($env:TEMP_NUGET_KEY)) { throw 'NuGet Trusted Publishing did not return a temporary credential' }
+          dotnet nuget push "artifacts/$env:PACKAGE_ID.$env:REQUESTED_VERSION.nupkg" --api-key $env:TEMP_NUGET_KEY --source $env:NUGET_SOURCE --skip-duplicate
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Create GitHub Release
