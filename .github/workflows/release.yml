@@ -61,8 +61,8 @@ jobs:
 
           if ($env:SHOULD_PUBLISH -eq 'true') {
             $tag = "v$env:REQUESTED_VERSION"
-            git ls-remote --exit-code origin "refs/tags/$tag" *> $null
-            if ($LASTEXITCODE -eq 0) {
+            $tagMatch = @(git ls-remote --refs origin "refs/tags/$tag" 2>$null)
+            if ($tagMatch.Count -gt 0) {
               throw "Git tag $tag already exists; refusing to republish"
             }
           }
