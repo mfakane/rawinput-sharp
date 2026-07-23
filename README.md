@@ -1,11 +1,13 @@
 ﻿# RawInput.Sharp
 
 A simple wrapper library for Windows [Raw Input](https://learn.microsoft.com/en-us/windows/win32/inputdev/raw-input).
-Available on .NET Standard 1.1 and .NET Framework 4.6.1.
+Version 0.2.0 targets .NET 8.0 and later. For older .NET Standard or .NET Framework targets, use version 0.1.3.
 
 ## NuGet
 
 https://www.nuget.org/packages/RawInput.Sharp/
+
+Version 0.2.0 targets .NET 8.0 and later. If you need a build for .NET Standard 2.0, netstandard1.1, or an older .NET Framework target, use version 0.1.3.
 
 ## Usage
 

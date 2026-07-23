@@ -6,7 +6,7 @@ on:
       version:
         description: Package version (must match RawInput.Sharp.csproj)
         required: true
-        default: '0.1.3'
+        default: '0.2.0'
         type: string
       release_notes:
         description: Markdown release notes
