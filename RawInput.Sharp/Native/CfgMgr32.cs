@@ -3,13 +3,13 @@ using System.Runtime.InteropServices;
 
 namespace Linearstar.Windows.RawInput.Native;
 
-public static class CfgMgr32
+public static partial class CfgMgr32
 {
-    [DllImport("cfgmgr32", CharSet = CharSet.Unicode)]
-    static extern ConfigReturnValue CM_Locate_DevNode(out IntPtr pdnDevInst, string pDeviceID, LocateDevNodeFlags ulFlags);
+    [LibraryImport("cfgmgr32", EntryPoint = "CM_Locate_DevNodeW", StringMarshalling = StringMarshalling.Utf16)]
+    private static partial ConfigReturnValue CM_Locate_DevNode(out IntPtr pdnDevInst, string pDeviceID, LocateDevNodeFlags ulFlags);
 
-    [DllImport("cfgmgr32", CharSet = CharSet.Unicode)]
-    static extern ConfigReturnValue CM_Get_DevNode_Property(IntPtr dnDevInst, in DevicePropertyKey propertyKey, out uint propertyType, IntPtr propertyBuffer, ref uint propertyBufferSize, uint ulFlags);
+    [LibraryImport("cfgmgr32", EntryPoint = "CM_Get_DevNode_PropertyW")]
+    private static partial ConfigReturnValue CM_Get_DevNode_Property(IntPtr dnDevInst, in DevicePropertyKey propertyKey, out uint propertyType, IntPtr propertyBuffer, ref uint propertyBufferSize, uint ulFlags);
 
     /// <summary>
     /// CM_LOCATE_DEVNODE_*

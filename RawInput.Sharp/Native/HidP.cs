@@ -3,31 +3,46 @@ using System.Runtime.InteropServices;
 
 namespace Linearstar.Windows.RawInput.Native;
 
-public static class HidP
+public static partial class HidP
 {
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetCaps(IntPtr preparsedData, out HidPCaps capabilities);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetCaps(IntPtr preparsedData, IntPtr capabilities);
 
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetButtonCaps(HidPReportType reportType, [Out] HidPButtonCaps[] buttonCaps, ref ushort buttonCapsLength, IntPtr preparsedData);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetButtonCaps(HidPReportType reportType, IntPtr buttonCaps, ref ushort buttonCapsLength, IntPtr preparsedData);
 
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetValueCaps(HidPReportType reportType, [Out] HidPValueCaps[] valueCaps, ref ushort valueCapsLength, IntPtr preparsedData);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetValueCaps(HidPReportType reportType, IntPtr valueCaps, ref ushort valueCapsLength, IntPtr preparsedData);
 
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetUsages(HidPReportType reportType, ushort usagePage, ushort linkCollection, [Out] ushort[]? usageList, ref uint usageLength, IntPtr preparsedData, byte[] report, uint reportLength);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetUsages(HidPReportType reportType, ushort usagePage, ushort linkCollection, IntPtr usageList, ref uint usageLength, IntPtr preparsedData, IntPtr report, uint reportLength);
 
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetUsageValue(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, out int usageValue, IntPtr preparsedData, byte[] report, uint reportLength);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetUsageValue(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, out int usageValue, IntPtr preparsedData, IntPtr report, uint reportLength);
 
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetScaledUsageValue(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, out int usageValue, IntPtr preparsedData, byte[] report, uint reportLength);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetScaledUsageValue(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, out int usageValue, IntPtr preparsedData, IntPtr report, uint reportLength);
 
-    [DllImport("hid")]
-    static extern NtStatus HidP_GetUsageValueArray(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, [Out] byte[] usageValue, ushort usageValueByteLength, IntPtr preparsedData, byte[] report, uint reportLength);
+    [LibraryImport("hid")]
+    private static partial NtStatus HidP_GetUsageValueArray(HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, IntPtr usageValue, ushort usageValueByteLength, IntPtr preparsedData, IntPtr report, uint reportLength);
 
-    public static NtStatus TryGetCaps(IntPtr preparsedData, out HidPCaps capabilities) =>
-        HidP_GetCaps(preparsedData, out capabilities);
+    public static NtStatus TryGetCaps(IntPtr preparsedData, out HidPCaps capabilities)
+    {
+        var buffer = AllocZeroed(Marshal.SizeOf<HidPCaps>());
+
+        try
+        {
+            var result = HidP_GetCaps(preparsedData, buffer);
+            capabilities = result == NtStatus.Success
+                ? Marshal.PtrToStructure<HidPCaps>(buffer)
+                : default;
+            return result;
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(buffer);
+        }
+    }
 
     public static NtStatus TryGetCaps(HidPreparsedData preparsedData, out HidPCaps capabilities) =>
         TryGetCaps((IntPtr)preparsedData, out capabilities);
@@ -53,9 +68,29 @@ public static class HidP
             _ => throw new ArgumentException($"Invalid HidPReportType: {reportType}", nameof(reportType)),
         };
 
-        buttonCaps = new HidPButtonCaps[capsCount];
+        var itemSize = Marshal.SizeOf<HidPButtonCaps>();
+        var buffer = AllocZeroed(itemSize * capsCount);
 
-        return HidP_GetButtonCaps(reportType, buttonCaps, ref capsCount, preparsedData);
+        try
+        {
+            var result = HidP_GetButtonCaps(reportType, buffer, ref capsCount, preparsedData);
+
+            if (result != NtStatus.Success)
+            {
+                buttonCaps = Array.Empty<HidPButtonCaps>();
+                return result;
+            }
+
+            buttonCaps = new HidPButtonCaps[capsCount];
+            for (var i = 0; i < capsCount; i++)
+                buttonCaps[i] = Marshal.PtrToStructure<HidPButtonCaps>(buffer + i * itemSize);
+
+            return result;
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(buffer);
+        }
     }
     
     public static NtStatus TryGetButtonCaps(HidPreparsedData preparsedData, HidPReportType reportType, out HidPButtonCaps[] buttonCaps) =>
@@ -82,9 +117,29 @@ public static class HidP
             _ => throw new ArgumentException($"Invalid HidPReportType: {reportType}", nameof(reportType)),
         };
 
-        valueCaps = new HidPValueCaps[capsCount];
+        var itemSize = Marshal.SizeOf<HidPValueCaps>();
+        var buffer = AllocZeroed(itemSize * capsCount);
 
-        return HidP_GetValueCaps(reportType, valueCaps, ref capsCount, preparsedData);
+        try
+        {
+            var result = HidP_GetValueCaps(reportType, buffer, ref capsCount, preparsedData);
+
+            if (result != NtStatus.Success)
+            {
+                valueCaps = Array.Empty<HidPValueCaps>();
+                return result;
+            }
+
+            valueCaps = new HidPValueCaps[capsCount];
+            for (var i = 0; i < capsCount; i++)
+                valueCaps[i] = Marshal.PtrToStructure<HidPValueCaps>(buffer + i * itemSize);
+
+            return result;
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(buffer);
+        }
     }
     
     public static NtStatus TryGetValueCaps(HidPreparsedData preparsedData, HidPReportType reportType, out HidPValueCaps[] valueCaps) =>
@@ -100,15 +155,18 @@ public static class HidP
     public static HidPValueCaps[] GetValueCaps(HidPreparsedData preparsedData, HidPReportType reportType) =>
         GetValueCaps((IntPtr)preparsedData, reportType);
 
-    public static NtStatus TryGetUsages(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, byte[] report, int reportLength, out ushort[] usageList)
+    public static unsafe NtStatus TryGetUsages(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, byte[] report, int reportLength, out ushort[] usageList)
     {
         uint usageCount = 0;
 
-        HidP_GetUsages(reportType, usagePage, linkCollection, null, ref usageCount, preparsedData, report, (uint)reportLength);
+        fixed (byte* reportBuffer = report)
+            HidP_GetUsages(reportType, usagePage, linkCollection, IntPtr.Zero, ref usageCount, preparsedData, (IntPtr)reportBuffer, (uint)reportLength);
 
         usageList = new ushort[usageCount];
 
-        return HidP_GetUsages(reportType, usagePage, linkCollection, usageList, ref usageCount, preparsedData, report, (uint)reportLength);
+        fixed (ushort* usageBuffer = usageList)
+        fixed (byte* reportBuffer = report)
+            return HidP_GetUsages(reportType, usagePage, linkCollection, (IntPtr)usageBuffer, ref usageCount, preparsedData, (IntPtr)reportBuffer, (uint)reportLength);
     }
     
     public static NtStatus TryGetUsages(HidPreparsedData preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, byte[] report, int reportLength, out ushort[] usageList) =>
@@ -136,8 +194,11 @@ public static class HidP
     public static ushort[] GetUsages(HidPreparsedData preparsedData, HidPReportType reportType, HidPButtonCaps buttonCaps, byte[] report, int reportLength) =>
         GetUsages(preparsedData, reportType, buttonCaps.UsagePage, buttonCaps.LinkCollection, report, reportLength);
     
-    public static NtStatus TryGetUsageValue(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, byte[] report, int reportLength, out int usageValue) =>
-        HidP_GetUsageValue(reportType, usagePage, linkCollection, usage, out usageValue, preparsedData, report, (uint)reportLength);
+    public static unsafe NtStatus TryGetUsageValue(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, byte[] report, int reportLength, out int usageValue)
+    {
+        fixed (byte* reportBuffer = report)
+            return HidP_GetUsageValue(reportType, usagePage, linkCollection, usage, out usageValue, preparsedData, (IntPtr)reportBuffer, (uint)reportLength);
+    }
 
     public static NtStatus TryGetUsageValue(HidPreparsedData preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, byte[] report, int reportLength, out int usageValue) =>
         TryGetUsageValue((IntPtr)preparsedData, reportType, usagePage, linkCollection, usage, report, reportLength, out usageValue);
@@ -164,8 +225,11 @@ public static class HidP
     public static int GetUsageValue(HidPreparsedData preparsedData, HidPReportType reportType, HidPValueCaps valueCaps, ushort usage, byte[] report, int reportLength) =>
         GetUsageValue(preparsedData, reportType, valueCaps.UsagePage, valueCaps.LinkCollection, usage, report, reportLength);
 
-    public static NtStatus TryGetScaledUsageValue(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, byte[] report, int reportLength, out int usageValue) => 
-        HidP_GetScaledUsageValue(reportType, usagePage, linkCollection, usage, out usageValue, preparsedData, report, (uint)reportLength);
+    public static unsafe NtStatus TryGetScaledUsageValue(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, byte[] report, int reportLength, out int usageValue)
+    {
+        fixed (byte* reportBuffer = report)
+            return HidP_GetScaledUsageValue(reportType, usagePage, linkCollection, usage, out usageValue, preparsedData, (IntPtr)reportBuffer, (uint)reportLength);
+    }
 
     public static NtStatus TryGetScaledUsageValue(HidPreparsedData preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, byte[] report, int reportLength, out int usageValue) =>
         TryGetScaledUsageValue((IntPtr)preparsedData, reportType, usagePage, linkCollection, usage, report, reportLength, out usageValue);
@@ -192,11 +256,13 @@ public static class HidP
     public static int GetScaledUsageValue(HidPreparsedData preparsedData, HidPReportType reportType, HidPValueCaps valueCaps, ushort usage, byte[] report, int reportLength) =>
         GetScaledUsageValue(preparsedData, reportType, valueCaps.UsagePage, valueCaps.LinkCollection, usage, report, reportLength);
     
-    public static NtStatus TryGetUsageValueArray(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, ushort usageValueByteLength, byte[] report, int reportLength, out byte[] usageValue)
+    public static unsafe NtStatus TryGetUsageValueArray(IntPtr preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, ushort usageValueByteLength, byte[] report, int reportLength, out byte[] usageValue)
     {
         usageValue = new byte[usageValueByteLength];
 
-        return HidP_GetUsageValueArray(reportType, usagePage, linkCollection, usage, usageValue, usageValueByteLength, preparsedData, report, (uint)reportLength);
+        fixed (byte* usageValueBuffer = usageValue)
+        fixed (byte* reportBuffer = report)
+            return HidP_GetUsageValueArray(reportType, usagePage, linkCollection, usage, (IntPtr)usageValueBuffer, usageValueByteLength, preparsedData, (IntPtr)reportBuffer, (uint)reportLength);
     }
     
     public static NtStatus TryGetUsageValueArray(HidPreparsedData preparsedData, HidPReportType reportType, ushort usagePage, ushort linkCollection, ushort usage, ushort usageValueByteLength, byte[] report, int reportLength, out byte[] usageValue) =>
@@ -223,6 +289,16 @@ public static class HidP
 
     public static byte[] GetUsageValueArray(HidPreparsedData preparsedData, HidPReportType reportType, HidPValueCaps valueCaps, ushort usage, byte[] report, int reportLength) =>
         GetUsageValueArray(preparsedData, reportType, valueCaps.UsagePage, valueCaps.LinkCollection, usage, (ushort)(valueCaps.BitSize * valueCaps.ReportCount), report, reportLength);
+
+    static unsafe IntPtr AllocZeroed(int size)
+    {
+        if (size == 0)
+            return IntPtr.Zero;
+
+        var buffer = Marshal.AllocHGlobal(size);
+        new Span<byte>((void*)buffer, size).Clear();
+        return buffer;
+    }
     
     public static void EnsureSuccess(this NtStatus result)
     {

@@ -1,31 +1,32 @@
 ﻿using System;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Linearstar.Windows.RawInput.Native;
 
-static class Kernel32
+static partial class Kernel32
 {
-    [DllImport("kernel32", EntryPoint = "CreateFile", SetLastError = true, CharSet = CharSet.Unicode)]
-    static extern IntPtr CreateFileCore(string lpFileName, DesiredAccess dwDesiredAccess, ShareMode dwShareMode, IntPtr lpSecurityAttributes, CreateDisposition dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
+    [LibraryImport("kernel32", EntryPoint = "CreateFileW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    private static partial IntPtr CreateFileCore(string lpFileName, DesiredAccess dwDesiredAccess, ShareMode dwShareMode, IntPtr lpSecurityAttributes, CreateDisposition dwCreationDisposition, uint dwFlagsAndAttributes, IntPtr hTemplateFile);
 
-    [DllImport("kernel32", SetLastError = true)]
-    public static extern bool CloseHandle(IntPtr hObject);
+    [LibraryImport("kernel32", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static partial bool CloseHandle(IntPtr hObject);
 
-    [DllImport("kernel32", EntryPoint = "GetModuleHandle", SetLastError = true)]
-    static extern IntPtr GetModuleHandleCore(string lpModuleName);
+    [LibraryImport("kernel32", EntryPoint = "GetModuleHandleW", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    private static partial IntPtr GetModuleHandleCore(string lpModuleName);
 
-    [DllImport("kernel32", EntryPoint = "GetProcAddress", SetLastError = true)]
-    static extern IntPtr GetProcAddressCore(IntPtr hModule, string procName);
+    [LibraryImport("kernel32", EntryPoint = "GetProcAddress", SetLastError = true, StringMarshalling = StringMarshalling.Utf8)]
+    private static partial IntPtr GetProcAddressCore(IntPtr hModule, string procName);
 
-    [DllImport("kernel32", EntryPoint = "IsWow64Process", SetLastError = true)]
-    static extern bool IsWow64ProcessCore(IntPtr hProcess, out bool lpSystemInfo);
+    [LibraryImport("kernel32", EntryPoint = "IsWow64Process", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static partial bool IsWow64ProcessCore(IntPtr hProcess, [MarshalAs(UnmanagedType.Bool)] out bool lpSystemInfo);
 
-    [DllImport("kernel32")]
-    public static extern IntPtr GetCurrentProcess();
+    [LibraryImport("kernel32")]
+    public static partial IntPtr GetCurrentProcess();
 
-    [DllImport("kernel32", SetLastError = true)]
-    static extern uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, StringBuilder lpBuffer, int nSize, IntPtr Arguments);
+    [LibraryImport("kernel32", EntryPoint = "FormatMessageW", SetLastError = true)]
+    private static partial uint FormatMessage(uint dwFlags, IntPtr lpSource, uint dwMessageId, uint dwLanguageId, IntPtr lpBuffer, int nSize, IntPtr Arguments);
         
     const uint FORMAT_MESSAGE_FROM_SYSTEM = 0x00001000;
 
@@ -108,12 +109,17 @@ static class Kernel32
         return handle != new IntPtr(-1);
     }
 
-    public static string FormatMessage(int errorCode)
+    public static unsafe string FormatMessage(int errorCode)
     {
-        var message = new StringBuilder(255);
-        var charsWritten = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, IntPtr.Zero, (uint)errorCode, 0, message, message.Capacity, IntPtr.Zero);
-        if (charsWritten == 0) throw new Win32ErrorException();
+        const int capacity = 255;
+        var message = new char[capacity];
 
-        return message.ToString();
+        fixed (char* buffer = message)
+        {
+            var charsWritten = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, IntPtr.Zero, (uint)errorCode, 0, (IntPtr)buffer, capacity, IntPtr.Zero);
+            if (charsWritten == 0) throw new Win32ErrorException();
+
+            return new string(buffer, 0, (int)charsWritten);
+        }
     }
 }
