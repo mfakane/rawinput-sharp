@@ -1,6 +1,7 @@
 ﻿using Linearstar.Windows.RawInput;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using static NativeMethods;
 
 
 var WindowClass = "HelperWindowClass";
@@ -48,7 +49,18 @@ var wind_class = new WNDCLASS
     }
 };
 
-ushort classAtom = RegisterClassW(ref wind_class);
+var windowClassBuffer = Marshal.AllocHGlobal(Marshal.SizeOf<WNDCLASS>());
+ushort classAtom;
+
+try
+{
+    Marshal.StructureToPtr(wind_class, windowClassBuffer, false);
+    classAtom = RegisterClassW(windowClassBuffer);
+}
+finally
+{
+    Marshal.FreeHGlobal(windowClassBuffer);
+}
 
 if (classAtom == 0)
     throw new Win32Exception();
@@ -80,34 +92,19 @@ RawInputDevice.RegisterDevice(HidUsageAndPage.Keyboard,
 
 
 // Message loop
-while (GetMessage(out var msg, IntPtr.Zero, 0, 0))
+while (true)
 {
+    var result = GetMessage(out var msg, IntPtr.Zero, 0, 0);
+    if (result == -1)
+        throw new Win32Exception();
+    if (result == 0)
+        break;
+
     TranslateMessage(msg);
     DispatchMessage(msg);
 }
 
-
-[DllImport("user32.dll")]
-static extern bool GetMessage(out IntPtr lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
-[DllImport("user32.dll")]
-static extern bool TranslateMessage(in IntPtr lpMsg);
-[DllImport("user32.dll")]
-static extern IntPtr DispatchMessage(in IntPtr lpMsg);
-
-
-[DllImport("user32.dll", SetLastError = true)]
-static extern ushort RegisterClassW([In] ref WNDCLASS lpWndClass);
-
-[DllImport("user32.dll", SetLastError = true)]
-static extern IntPtr CreateWindowExW(uint dwExStyle,
-    [MarshalAs(UnmanagedType.LPWStr)] string lpClassName,
-    [MarshalAs(UnmanagedType.LPWStr)] string lpWindowName,
-    uint dwStyle, int x, int y, int nWidth, int nHeight,
-    IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
-
-[DllImport("user32.dll")]
-static extern IntPtr DefWindowProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
-
+GC.KeepAlive(wind_class.lpfnWndProc);
 
 delegate IntPtr WndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
@@ -124,4 +121,49 @@ struct WNDCLASS
     public IntPtr hbrBackground;
     public string lpszMenuName;
     public nint lpszClassName;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+struct MSG
+{
+    public IntPtr hwnd;
+    public uint message;
+    public IntPtr wParam;
+    public IntPtr lParam;
+    public uint time;
+    public POINT pt;
+    public uint lPrivate;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+struct POINT
+{
+    public int x;
+    public int y;
+}
+
+static partial class NativeMethods
+{
+    [LibraryImport("user32.dll", EntryPoint = "GetMessageW", SetLastError = true)]
+    internal static partial int GetMessage(out MSG lpMsg, IntPtr hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
+
+    [LibraryImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    internal static partial bool TranslateMessage(in MSG lpMsg);
+
+    [LibraryImport("user32.dll", EntryPoint = "DispatchMessageW")]
+    internal static partial IntPtr DispatchMessage(in MSG lpMsg);
+
+    [LibraryImport("user32.dll", SetLastError = true)]
+    internal static partial ushort RegisterClassW(IntPtr lpWndClass);
+
+    [LibraryImport("user32.dll", SetLastError = true, StringMarshalling = StringMarshalling.Utf16)]
+    internal static partial IntPtr CreateWindowExW(uint dwExStyle,
+        string lpClassName,
+        string lpWindowName,
+        uint dwStyle, int x, int y, int nWidth, int nHeight,
+        IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
+
+    [LibraryImport("user32.dll", EntryPoint = "DefWindowProcW")]
+    internal static partial IntPtr DefWindowProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam);
 }
