@@ -14,6 +14,8 @@ compatibility release.
 
 https://www.nuget.org/packages/RawInput.Sharp/
 
+Version 0.2.0 targets .NET 8.0 and later. If you need a build for .NET Standard 2.0, netstandard1.1, or an older .NET Framework target, use version 0.1.3.
+
 ## Usage
 
 ### Acquiring connected devices

@@ -4,27 +4,27 @@ using System.Text;
 
 namespace Linearstar.Windows.RawInput.Native;
 
-public static class HidD
+public static partial class HidD
 {
-    [DllImport("hid", CharSet = CharSet.Unicode)]
+    [LibraryImport("hid")]
     [return: MarshalAs(UnmanagedType.U1)]
-    static extern bool HidD_GetManufacturerString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+    private static partial bool HidD_GetManufacturerString(IntPtr HidDeviceObject, IntPtr Buffer, uint BufferLength);
 
-    [DllImport("hid", CharSet = CharSet.Unicode)]
+    [LibraryImport("hid")]
     [return: MarshalAs(UnmanagedType.U1)]
-    static extern bool HidD_GetProductString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+    private static partial bool HidD_GetProductString(IntPtr HidDeviceObject, IntPtr Buffer, uint BufferLength);
 
-    [DllImport("hid", CharSet = CharSet.Unicode)]
+    [LibraryImport("hid")]
     [return: MarshalAs(UnmanagedType.U1)]
-    static extern bool HidD_GetSerialNumberString(IntPtr HidDeviceObject, [Out] byte[] Buffer, uint BufferLength);
+    private static partial bool HidD_GetSerialNumberString(IntPtr HidDeviceObject, IntPtr Buffer, uint BufferLength);
 
-    [DllImport("hid")]
+    [LibraryImport("hid")]
     [return: MarshalAs(UnmanagedType.U1)]
-    static extern bool HidD_GetPreparsedData(IntPtr HidDeviceObject, out IntPtr PreparsedData);
+    private static partial bool HidD_GetPreparsedData(IntPtr HidDeviceObject, out IntPtr PreparsedData);
 
-    [DllImport("hid")]
+    [LibraryImport("hid")]
     [return: MarshalAs(UnmanagedType.U1)]
-    static extern bool HidD_FreePreparsedData(IntPtr PreparsedData);
+    private static partial bool HidD_FreePreparsedData(IntPtr PreparsedData);
 
     public static HidDeviceHandle OpenDevice(string devicePath)
     {
@@ -91,12 +91,15 @@ public static class HidD
         HidD_FreePreparsedData((IntPtr)preparsedData);
     }
 
-    static string? GetString(IntPtr handle, Func<IntPtr, byte[], uint, bool> proc)
+    static unsafe string? GetString(IntPtr handle, Func<IntPtr, IntPtr, uint, bool> proc)
     {
         var buf = new byte[256];
 
-        if (!proc(handle, buf, (uint)buf.Length))
-            return null;
+        fixed (byte* buffer = buf)
+        {
+            if (!proc(handle, (IntPtr)buffer, (uint)buf.Length))
+                return null;
+        }
 
         var str = Encoding.Unicode.GetString(buf, 0, buf.Length);
 
